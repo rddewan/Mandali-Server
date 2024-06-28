@@ -1,0 +1,13 @@
+services:
+  db:
+    container_name: mandali_db
+    image: postgres
+    restart: always
+    # env_file:
+    #   - .env.development
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 5432:5432

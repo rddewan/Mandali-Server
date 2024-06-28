@@ -1,0 +1,13 @@
+{
+  "singleQuote": true,
+  "trailingComma": "all",
+  "overrides": [
+    {
+      "files": "*.yaml",
+			"options": {
+				"parser": "yaml",
+				"tabWidth": 2
+			}
+    }
+  ]
+}

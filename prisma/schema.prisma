@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthType {
+  phone
+  email
+  oauth
+  social
+}
+
+enum RoleType {
+  user
+  admin
+  secretary
+  treasurer
+  pastor
+}
+
+enum ServiceType {
+  sunday
+  cottage
+}
+
+model Church {
+  id Int @id @default(autoincrement())
+  name String @unique
+  address String
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Define the one-to-many relationship with the User model
+  users User[]
+
+  @@map("churchs")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  name          String   @unique
+  email         String   @unique
+  passwordHash  String?
+  phoneNumber   String?  @unique
+  photo         String?
+  authType      AuthType @default(email)
+  emailVerified Boolean  @default(false)
+
+  // establish a one-to-many relationship with the RefreshToken model.
+  refreshToken   RefreshToken[]
+  // establish a many-to-many relationship with the Role model
+  roles          UserRole[]
+  // establish a one-to-many relationship with Service model
+  services Service[]
+
+  // Foreign key to Church model
+  churchId Int
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  // @@map specifies the name of the corresponding table in the database as "users".
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId    Int
+  token     String
+  expiresAt DateTime
+
+  // foreign key - establish the relation with the User model 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
+}
+
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      RoleType @unique
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // establish a many-to-many relationship with the User model
+  users UserRole[]
+
+  // @@map specifies the name of the corresponding table in the database as "roles".
+  @@map("roles")
+}
+
+model UserRole {
+  userId Int
+  roleId Int
+
+  // foreign key - establish the relation with the User model
+  user User @relation(fields: [userId], references: [id])
+
+  // foreign key - establish the relation with the Role model
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@id([userId, roleId])
+  // @@map specifies the name of the corresponding table in the database as "user_roles".
+  @@map("user_roles")
+}
+
+model Service {
+  id          Int         @id @default(autoincrement())
+  date        DateTime
+  chairPerson String
+  preacher    String
+  bibleReader String[]    @default([])
+  offering    String?
+  worship     String?
+  serviceType ServiceType
+  createdBy   Int
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // foreign key - establish the relation with the User model
+  user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+
+  @@map("services")
+}
