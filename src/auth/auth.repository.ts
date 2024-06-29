@@ -43,7 +43,7 @@ export class AuthRepository {
       });
 
       if (!user) {
-        throw new NotFoundException('User not found');
+        throw new NotFoundException('user or password not found');
       }
 
       return user;

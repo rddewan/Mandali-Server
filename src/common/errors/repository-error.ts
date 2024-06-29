@@ -44,7 +44,7 @@ export default class RepositoryError {
         );
       }
       // Handle unexpected errors
-      throw new Error(`Unexpected error: ${error.message}`);
+      throw error;
     }
   }
 }
