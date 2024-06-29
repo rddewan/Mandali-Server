@@ -8,6 +8,7 @@ import { JwtPayload, Token } from './types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import TokenExpiredException from 'src/common/exceptions/token-expired-exception';
 
 @Injectable()
 export class AuthService {
@@ -45,28 +46,36 @@ export class AuthService {
   }
 
   async refresh(data: RefreshTokenDto) {
-    const refreshToken = data.refreshToken;
-    // verify refresh token
-    const payload = await this.jwtService.verifyAsync<JwtPayload>(
-      refreshToken,
-      {
-        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-      },
-    );
+    try {
+      const refreshToken = data.refreshToken;
+      // verify refresh token
+      const payload = await this.jwtService.verifyAsync<JwtPayload>(
+        refreshToken,
+        {
+          secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+        },
+      );
 
-    // check if payload exists
-    if (!payload) {
-      throw new ForbiddenException('Access Denied');
+      // check if payload exists
+      if (!payload) {
+        throw new ForbiddenException('Access Denied');
+      }
+
+      // check if user exists
+      const user = await this.authRepository.findUserById(payload.sub);
+      // delete refresh token
+      await this.authRepository.deleteRefreshToken(refreshToken);
+      // create new token
+      const token = await this.createToken(user.id);
+
+      return token;
+    } catch (error) {
+      if (error.name === 'TokenExpiredError') {
+        throw new TokenExpiredException();
+      }
+
+      throw error;
     }
-
-    // check if user exists
-    const user = await this.authRepository.findUserById(payload.sub);
-    // delete refresh token
-    await this.authRepository.deleteRefreshToken(refreshToken);
-    // create new token
-    const token = await this.createToken(user.id);
-
-    return token;
   }
 
   private async comparePassword(data: string, hash: string) {
@@ -83,7 +92,7 @@ export class AuthService {
 
     const refresh_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: '7d',
+      expiresIn: '1m',
     });
 
     await this.prisma.refreshToken.create({
