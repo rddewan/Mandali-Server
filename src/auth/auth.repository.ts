@@ -52,6 +52,36 @@ export class AuthRepository {
     }
   }
 
+  async findUserById(id: number): Promise<User> {
+    try {
+      const user = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      if (!user) {
+        throw new NotFoundException('user or password not found');
+      }
+
+      return user;
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async deleteRefreshToken(refreshToken: string) {
+    try {
+      await this.prisma.refreshToken.deleteMany({
+        where: {
+          token: refreshToken,
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
   async createUser(data: AuthDto | Record<string, any>): Promise<User> {
     try {
       const passwordHash = await this.hashPassword(data.password);

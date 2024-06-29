@@ -2,7 +2,7 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthRepository } from './auth.repository';
 import { plainToClass } from 'class-transformer';
 import { UserDto } from 'src/common/dtos/user.dto';
-import { AuthDto, LoginDto } from './dtos';
+import { AuthDto, LoginDto, RefreshTokenDto } from './dtos';
 import * as bcrypt from 'bcrypt';
 import { JwtPayload, Token } from './types';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -39,6 +39,31 @@ export class AuthService {
       throw new ForbiddenException('Email or password is incorrect');
     }
 
+    const token = await this.createToken(user.id);
+
+    return token;
+  }
+
+  async refresh(data: RefreshTokenDto) {
+    const refreshToken = data.refreshToken;
+    // verify refresh token
+    const payload = await this.jwtService.verifyAsync<JwtPayload>(
+      refreshToken,
+      {
+        secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
+      },
+    );
+
+    // check if payload exists
+    if (!payload) {
+      throw new ForbiddenException('Access Denied');
+    }
+
+    // check if user exists
+    const user = await this.authRepository.findUserById(payload.sub);
+    // delete refresh token
+    await this.authRepository.deleteRefreshToken(refreshToken);
+    // create new token
     const token = await this.createToken(user.id);
 
     return token;

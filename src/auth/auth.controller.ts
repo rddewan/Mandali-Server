@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/common/dtos/user.dto';
-import { AuthDto, LoginDto } from './dtos';
+import { AuthDto, LoginDto, RefreshTokenDto } from './dtos';
 import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
@@ -71,6 +71,17 @@ export class AuthController {
     return {
       status: 'success',
       data: token,
+    };
+  }
+
+  @Post('api/v1/auth/refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() data: RefreshTokenDto) {
+    const result = await this.authService.refresh(data);
+
+    return {
+      status: 'success',
+      data: result,
     };
   }
 }
