@@ -33,8 +33,10 @@ async function main() {
 
   // create a church
   const church = await prisma.church.upsert({
-    where: { name: 'Mirik' },
-    update: {},
+    where: { name: 'Mirik Church' },
+    update: {
+      address: 'Mirik Deosadara, Mirik 734214, Darjeeling, WB, India',
+    },
     create: {
       name: 'Mirik Church',
       address: 'Mirik Deosadara, Mirik 734214, Darjeeling, WB, India',
@@ -48,7 +50,9 @@ async function main() {
   for (const roleName of roles) {
     await prisma.role.upsert({
       where: { name: roleName },
-      update: {},
+      update: {
+        name: roleName,
+      },
       create: { name: roleName },
     });
   }

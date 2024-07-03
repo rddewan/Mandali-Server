@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
   BadRequestException,
+  ConflictException,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common/exceptions';
 import { Prisma } from '@prisma/client';
 
@@ -15,17 +17,21 @@ export default class RepositoryError {
       switch (error.code) {
         case 'P2002':
           // Unique constraint failed
-          throw new Error(`Unique constraint failed: ${error.meta.target}`);
+          throw new ConflictException(
+            `Unique constraint failed: ${error.meta.target}`,
+          );
         case 'P2003':
           // Foreign key constraint failed
-          throw new Error(
+          throw new ConflictException(
             `Foreign key constraint failed: ${error.meta.field_name}`,
           );
         case 'P2025':
           // Record not found
-          throw new Error(`Record not found: ${error.meta.cause}`);
+          throw new NotFoundException(`Record not found: ${error.meta.cause}`);
         default:
-          throw new Error(`Database error: ${error.message}`);
+          throw new InternalServerErrorException(
+            `Database error: ${error.message}`,
+          );
       }
     } else if (error instanceof Prisma.PrismaClientValidationError) {
       // Handle Prisma validation errors

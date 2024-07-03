@@ -1,0 +1,40 @@
+services:
+  api-qa:
+    depends_on: [db-qa]
+    env_file: ".env.qa"
+    build:
+      context: .
+      dockerfile: Dockerfile.qa
+    container_name: mandali_api_qa
+    restart: always
+    ports:
+      - 3222:3222
+    develop:
+      watch:
+        - action: rebuild
+          path: package.json
+        - action: sync
+          path: ./src
+          target: /usr/src/app/src
+          ignore: [node_modules]
+    networks:
+      - network-qa
+
+      
+  db-qa:
+    env_file: ".env.qa"
+    container_name: mandali_db_qa
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 5433:5432
+    networks:
+      - network-qa
+
+networks:
+  network-qa:
+    driver: bridge

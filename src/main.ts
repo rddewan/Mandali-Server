@@ -13,6 +13,9 @@ async function bootstrap() {
   );
   app.use(cookieParser());
   const config = app.get(ConfigService);
-  await app.listen(config.get<number>('PORT') || 3000);
+  const PORT = config.get<number>('PORT') || 3000;
+  await app.listen(PORT, () => {
+    console.log(`mandali api is running on: ${PORT}`);
+  });
 }
 bootstrap();
