@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/common/dtos/user.dto';
 import { AuthDto, FirebaseLoginDto, LoginDto, RefreshTokenDto } from './dtos';
-import { CookieOptions, Response } from 'express';
+import { CookieOptions, Response } from 'express-serve-static-core';
 import { ConfigService } from '@nestjs/config';
 
 @Controller()
