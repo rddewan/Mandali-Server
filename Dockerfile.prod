@@ -12,4 +12,4 @@ EXPOSE 3030
 
 RUN npm run build
 
-CMD ["npm", "run", "start:prod"]
+CMD ["npm", "run", "start:migrate:prod"]
