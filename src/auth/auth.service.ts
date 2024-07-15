@@ -9,6 +9,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import TokenExpiredException from 'src/common/exceptions/token-expired-exception';
+import FirebaseService from 'src/firebase/firebase.service';
+import { AuthType } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +19,7 @@ export class AuthService {
     private prisma: PrismaService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   async signup(data: AuthDto) {
@@ -43,6 +46,39 @@ export class AuthService {
     const token = await this.createToken(user.id);
 
     return token;
+  }
+
+  async loginWithFirebaseToken(token: string): Promise<Token> {
+    // verify the token
+    const decodedToken = await this.firebaseService.verifyIdToken(token);
+    // fetch the user from the firebase using the decoded token
+    const firebaseUser = await this.firebaseService.getUser(decodedToken.uid);
+
+    const user = await this.authRepository.findUserByPhoneNumber(
+      firebaseUser.phoneNumber,
+      firebaseUser.email,
+    );
+
+    // if no user, create a new user
+    if (!user) {
+      const data = {
+        name: firebaseUser.displayName || firebaseUser.phoneNumber,
+        email: firebaseUser.email || firebaseUser.phoneNumber,
+        phoneNumber: firebaseUser.phoneNumber,
+        authType: firebaseUser.phoneNumber ? AuthType.phone : AuthType.social,
+      };
+
+      const newUser = await this.authRepository.createUser(data);
+      const token = await this.createToken(newUser.id);
+
+      return token;
+
+      // if user exists, create a new token
+    } else {
+      const token = await this.createToken(user.id);
+
+      return token;
+    }
   }
 
   async refresh(data: RefreshTokenDto) {
@@ -76,6 +112,11 @@ export class AuthService {
 
       throw error;
     }
+  }
+
+  async emailExists(email: string) {
+    const user = await this.authRepository.findUserByEmail(email);
+    return !!user;
   }
 
   private async comparePassword(data: string, hash: string) {
