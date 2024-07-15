@@ -1,8 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  await app.listen(3000);
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+    }),
+  );
+  app.use(cookieParser());
+  const config = app.get(ConfigService);
+  const PORT = config.get<number>('PORT') || 3000;
+  await app.listen(PORT, () => {
+    console.log(`mandali api is running on: ${PORT}`);
+  });
 }
 bootstrap();
