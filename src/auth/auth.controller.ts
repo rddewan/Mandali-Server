@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/common/dtos/user.dto';
-import { AuthDto, LoginDto, RefreshTokenDto } from './dtos';
+import { AuthDto, FirebaseLoginDto, LoginDto, RefreshTokenDto } from './dtos';
 import { CookieOptions, Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 
@@ -79,6 +79,27 @@ export class AuthController {
   async refresh(@Body() data: RefreshTokenDto) {
     const result = await this.authService.refresh(data);
 
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Post('api/v1/auth/login-with-firebase-token')
+  @HttpCode(HttpStatus.OK)
+  async loginWithFirebaseToken(@Body() data: FirebaseLoginDto) {
+    const result = await this.authService.loginWithFirebaseToken(data.token);
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Post('api/v1/auth/email-exists')
+  @HttpCode(HttpStatus.OK)
+  async emailExists(@Body() data: { email: string }) {
+    const result = await this.authService.emailExists(data.email);
     return {
       status: 'success',
       data: result,
