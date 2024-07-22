@@ -65,7 +65,7 @@ model User {
   // establish a many-to-many relationship with the Role model
   roles          UserRole[]
   // establish a one-to-many relationship with Service model
-  services Service[]
+  services ChurchService[]
 
   // Foreign key to Church model
   churchId Int
@@ -118,12 +118,12 @@ model UserRole {
   @@map("user_roles")
 }
 
-model Service {
+model ChurchService {
   id          Int         @id @default(autoincrement())
   date        DateTime
   chairPerson String
   preacher    String
-  bibleReader String[]    @default([])
+  bibleReaders String[]    @default([])
   offering    String?
   worship     String?
   serviceType ServiceType
@@ -135,5 +135,5 @@ model Service {
   // foreign key - establish the relation with the User model
   user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
 
-  @@map("services")
+  @@map("church_services")
 }

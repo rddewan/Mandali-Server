@@ -1,31 +1,31 @@
 services:
-  api-dev:
-    depends_on: [db-dev]
-    env_file: ".env.development"
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
-    container_name: mandali_api_dev
-    restart: always
-    ports:
-      - 3111:3111
-    develop:
-      watch:
-        - action: rebuild
-          path: package.json
-        - action: sync
-          path: ./src
-          target: /usr/src/app/src
-          ignore: [node_modules]
-    networks:
-      - network-dev
+  # api-dev:
+  #   depends_on: [db-dev]
+  #   env_file: ".env.development"
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.dev
+  #   container_name: mandali_api_dev
+  #   #restart: always
+  #   ports:
+  #     - 3111:3111
+  #   develop:
+  #     watch:
+  #       - action: rebuild
+  #         path: package.json
+  #       - action: sync
+  #         path: ./src
+  #         target: /usr/src/app/src
+  #         ignore: [node_modules]
+  #   networks:
+  #     - network-dev
 
       
   db-dev:
     env_file: ".env.development"
     container_name: mandali_db_dev
     image: postgres
-    restart: always
+    #restart: always
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
