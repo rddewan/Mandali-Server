@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -17,29 +18,56 @@ export class ChurchServiceController {
 
   @Get('api/v1/church-service')
   async findAll(@Query() query: ChurchServicePaginationDto) {
-    return await this.churchServiceService.findAll(query.page, query.limit);
+    const result = await this.churchServiceService.findAll(
+      query.page,
+      query.limit,
+    );
+
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 
   @Get('api/v1/church-service/:id')
-  async findById(@Param('id') id: number) {
-    return await this.churchServiceService.findById(id);
+  async findById(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.churchServiceService.findById(id);
+
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 
   @Post('api/v1/church-service')
   async create(@Body() data: ChurchServiceDto) {
-    return await this.churchServiceService.create(data);
+    const result = await this.churchServiceService.create(data);
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 
   @Patch('api/v1/church-service/:id')
   async update(
-    @Param('id') id: number,
+    @Param('id', ParseIntPipe) id: number,
     @Body() data: Partial<ChurchServiceDto>,
   ) {
-    return await this.churchServiceService.update(id, data);
+    const result = await this.churchServiceService.update(id, data);
+
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 
   @Delete('api/v1/church-service/:id')
-  async delete(@Param('id') id: number) {
-    return await this.churchServiceService.delete(id);
+  async delete(@Param('id', ParseIntPipe) id: number) {
+    const result = await this.churchServiceService.delete(id);
+
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 }

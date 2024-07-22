@@ -2,7 +2,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ChurchServiceDto } from './dtos';
 import RepositoryError from 'src/common/errors/repository-error';
 import { ChurchService } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class ChurchServiceRepository {
   constructor(
     private readonly prisma: PrismaService,
@@ -24,6 +26,8 @@ export class ChurchServiceRepository {
         },
       });
     } catch (error) {
+      console.log(error);
+
       this.repositoryError.handleError(error);
     }
   }
@@ -57,6 +61,8 @@ export class ChurchServiceRepository {
     page: number,
     limit: number,
   ): Promise<ChurchService[]> {
+    console.log(page, limit);
+
     try {
       return await this.prisma.churchService.findMany({
         skip: (page - 1) * limit,
@@ -66,6 +72,8 @@ export class ChurchServiceRepository {
         },
       });
     } catch (error) {
+      console.log(error);
+
       this.repositoryError.handleError(error);
     }
   }
