@@ -10,3 +10,7 @@ Church management SAAS
 - Run POSTGRES docker qa  `docker-compose -f docker-compose-qa.yaml --env-file .env.qa up --build`
 - Run DB migration `npx prisma migrate dev --name init`
 - Run DB Seed ``
+
+
+### Generate Base64
+-  openssl rand -base64 32
