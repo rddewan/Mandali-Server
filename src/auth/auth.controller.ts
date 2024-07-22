@@ -11,6 +11,7 @@ import { UserDto } from 'src/common/dtos/user.dto';
 import { AuthDto, FirebaseLoginDto, LoginDto, RefreshTokenDto } from './dtos';
 import { CookieOptions, Response } from 'express-serve-static-core';
 import { ConfigService } from '@nestjs/config';
+import { PublicRoute } from 'src/common/decorators';
 
 @Controller()
 export class AuthController {
@@ -19,6 +20,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @PublicRoute()
   @Post('api/v1/auth/signup')
   @HttpCode(HttpStatus.CREATED)
   async signup(
@@ -31,6 +33,7 @@ export class AuthController {
     };
   }
 
+  @PublicRoute()
   @Post('api/v1/auth/login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -74,6 +77,7 @@ export class AuthController {
     };
   }
 
+  @PublicRoute()
   @Post('api/v1/auth/refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(@Body() data: RefreshTokenDto) {
@@ -85,6 +89,7 @@ export class AuthController {
     };
   }
 
+  @PublicRoute()
   @Post('api/v1/auth/login-with-firebase-token')
   @HttpCode(HttpStatus.OK)
   async loginWithFirebaseToken(@Body() data: FirebaseLoginDto) {
@@ -96,6 +101,7 @@ export class AuthController {
     };
   }
 
+  @PublicRoute()
   @Post('api/v1/auth/email-exists')
   @HttpCode(HttpStatus.OK)
   async emailExists(@Body() data: { email: string }) {

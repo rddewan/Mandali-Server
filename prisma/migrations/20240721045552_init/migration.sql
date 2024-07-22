@@ -66,12 +66,12 @@ CREATE TABLE "user_roles" (
 );
 
 -- CreateTable
-CREATE TABLE "services" (
+CREATE TABLE "church_services" (
     "id" SERIAL NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
     "chairPerson" TEXT NOT NULL,
     "preacher" TEXT NOT NULL,
-    "bibleReader" TEXT[] DEFAULT ARRAY[]::TEXT[],
+    "bibleReaders" TEXT[] DEFAULT ARRAY[]::TEXT[],
     "offering" TEXT,
     "worship" TEXT,
     "serviceType" "ServiceType" NOT NULL,
@@ -79,7 +79,7 @@ CREATE TABLE "services" (
     "createAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "services_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "church_services_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -110,4 +110,4 @@ ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_userId_fkey" FOREIGN KEY ("u
 ALTER TABLE "user_roles" ADD CONSTRAINT "user_roles_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "roles"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "services" ADD CONSTRAINT "services_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "church_services" ADD CONSTRAINT "church_services_createdBy_fkey" FOREIGN KEY ("createdBy") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE;

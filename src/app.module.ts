@@ -5,6 +5,9 @@ import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthenticationGuard } from './guards/authentication.guard';
+import { ChurchServiceModule } from './church-service/church-service.module';
 
 @Module({
   imports: [
@@ -16,8 +19,15 @@ import { JwtModule } from '@nestjs/jwt';
     JwtModule.register({ global: true }),
     AuthModule,
     PrismaModule,
+    ChurchServiceModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: AuthenticationGuard,
+    },
+    AppService,
+  ],
 })
 export class AppModule {}
