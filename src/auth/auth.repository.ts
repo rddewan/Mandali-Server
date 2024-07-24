@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthType, RoleType, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { AuthDto } from './dtos';
+import { AuthDto, PhoneAuthDto } from './dtos';
 import RepositroyError from 'src/common/errors/repository-error';
 
 @Injectable()
@@ -78,9 +78,33 @@ export class AuthRepository {
     }
   }
 
-  async createUser(data: AuthDto | Record<string, any>): Promise<User> {
+  async createUser(data: AuthDto): Promise<User> {
     try {
       const passwordHash = await this.hashPassword(data.password);
+      console.log(passwordHash);
+
+      return await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          passwordHash: passwordHash,
+          authType: AuthType.email,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.admin } } }],
+          },
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async createAdminUser(data: AuthDto): Promise<User> {
+    try {
+      const passwordHash = await this.hashPassword(data.password);
+      console.log(passwordHash);
+
       return await this.prisma.user.create({
         data: {
           name: data.name,
@@ -93,6 +117,24 @@ export class AuthRepository {
               { role: { connect: { name: RoleType.admin } } },
               { role: { connect: { name: RoleType.user } } },
             ],
+          },
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async createPhoneAuthUser(data: PhoneAuthDto): Promise<User> {
+    try {
+      return await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          authType: data.authType,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.user } } }],
           },
         },
       });

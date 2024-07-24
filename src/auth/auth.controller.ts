@@ -93,7 +93,7 @@ export class AuthController {
   @Post('api/v1/auth/login-with-firebase-token')
   @HttpCode(HttpStatus.OK)
   async loginWithFirebaseToken(@Body() data: FirebaseLoginDto) {
-    const result = await this.authService.loginWithFirebaseToken(data.token);
+    const result = await this.authService.loginWithFirebaseToken(data);
 
     return {
       status: 'success',
