@@ -24,10 +24,6 @@ export class AuthRepository {
         },
       });
 
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-
       return user;
     } catch (error) {
       this.repositoryError.handleError(error);
