@@ -8,6 +8,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { ChurchServiceModule } from './church-service/church-service.module';
+import { ChurchModule } from './church/church.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ChurchServiceModule } from './church-service/church-service.module';
     AuthModule,
     PrismaModule,
     ChurchServiceModule,
+    ChurchModule,
   ],
   controllers: [AppController],
   providers: [
