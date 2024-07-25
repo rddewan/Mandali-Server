@@ -127,8 +127,8 @@ export class AuthRepository {
 
   async createPhoneAuthUser(data: PhoneAuthDto): Promise<User> {
     try {
-      return await this.prisma.user.create({
-        data: {
+      return await this.prisma.user.upsert({
+        create: {
           name: data.name,
           email: data.email,
           authType: data.authType,
@@ -136,6 +136,18 @@ export class AuthRepository {
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },
+        },
+        update: {
+          name: data.name,
+          email: data.email,
+          authType: data.authType,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.user } } }],
+          },
+        },
+        where: {
+          phoneNumber: data.phoneNumber,
         },
       });
     } catch (error) {
