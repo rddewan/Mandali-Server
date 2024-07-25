@@ -12,15 +12,11 @@ export class AuthRepository {
     private readonly repositoryError: RepositroyError,
   ) {}
 
-  async findUserByPhoneNumber(
-    phoneNumber: string,
-    email: string,
-  ): Promise<User> {
+  async findUserByPhoneNumber(phoneNumber: string): Promise<User> {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
           phoneNumber,
-          email,
         },
       });
 

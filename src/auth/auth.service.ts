@@ -62,7 +62,6 @@ export class AuthService {
 
     const user = await this.authRepository.findUserByPhoneNumber(
       firebaseUser.phoneNumber,
-      firebaseUser.email,
     );
 
     // if no user, create a new user
