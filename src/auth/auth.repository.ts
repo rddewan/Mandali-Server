@@ -125,29 +125,37 @@ export class AuthRepository {
     }
   }
 
+  /**
+   * Creates a new user with phone authentication or updates an existing user with the same phone number.
+   *
+   * @param {PhoneAuthDto} data - The data containing the user's name, email, phone number, authentication type, and church ID.
+   * @return {Promise<User>} A promise that resolves to the created or updated user.
+   */
   async createPhoneAuthUser(data: PhoneAuthDto): Promise<User> {
     try {
       return await this.prisma.user.upsert({
-        create: {
-          name: data.name,
-          email: data.email,
-          authType: data.authType,
-          churchId: data.churchId,
-          roles: {
-            create: [{ role: { connect: { name: RoleType.user } } }],
-          },
+        where: {
+          phoneNumber: data.phoneNumber,
         },
         update: {
           name: data.name,
           email: data.email,
           authType: data.authType,
+          phoneNumber: data.phoneNumber,
           churchId: data.churchId,
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },
         },
-        where: {
+        create: {
+          name: data.name,
+          email: data.email,
           phoneNumber: data.phoneNumber,
+          authType: data.authType,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.user } } }],
+          },
         },
       });
     } catch (error) {
