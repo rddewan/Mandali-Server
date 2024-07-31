@@ -17,6 +17,11 @@ export class ChurchRepository {
         data: {
           name: data.name,
           address: data.address,
+          churchSetting: {
+            create: {
+              ...data.churchSetting,
+            },
+          },
         },
       });
     } catch (error) {
@@ -30,6 +35,13 @@ export class ChurchRepository {
         where: {
           id,
         },
+        include: {
+          churchSetting: {
+            select: {
+              timeZone: true,
+            },
+          },
+        },
       });
     } catch (error) {
       this.repositoryError.handleError(error);
@@ -38,7 +50,15 @@ export class ChurchRepository {
 
   async findAll(): Promise<Church[]> {
     try {
-      return await this.prisma.church.findMany();
+      return await this.prisma.church.findMany({
+        include: {
+          churchSetting: {
+            select: {
+              timeZone: true,
+            },
+          },
+        },
+      });
     } catch (error) {
       this.repositoryError.handleError(error);
     }

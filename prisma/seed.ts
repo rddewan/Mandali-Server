@@ -40,6 +40,11 @@ async function main() {
     create: {
       name: 'Mirik Church',
       address: 'Mirik Deosadara, Mirik 734214, Darjeeling, WB, India',
+      churchSetting: {
+        create: {
+          timeZone: 'Asia/Kolkata',
+        },
+      },
     },
   });
 
