@@ -22,9 +22,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prisma:dev": "dotenv -e .env.development -- npx prisma migrate dev",
-    "prisma:qa": "dotenv -e .env.qa -- npx prisma migrate deploy",
-    "prisma:prod": "dotenv -e .env.production -- npx prisma migrate deploy",
+    "prisma-migrate:dev": "dotenv -e .env.development -- npx prisma migrate dev",
+    "prisma-migrate:qa": "dotenv -e .env.qa -- npx prisma migrate deploy",
+    "prisma-migrate:prod": "dotenv -e .env.production -- npx prisma migrate deploy",
     "seed:dev": "NODE_ENV=development ts-node prisma/seed.ts",
     "seed:qa": "NODE_ENV=qa ts-node prisma/seed.ts",
     "seed:prod": "NODE_ENV=production ts-node prisma/seed.ts"

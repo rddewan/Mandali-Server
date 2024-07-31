@@ -9,6 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
 import { ChurchServiceModule } from './church-service/church-service.module';
 import { ChurchModule } from './church/church.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ChurchModule } from './church/church.module';
     PrismaModule,
     ChurchServiceModule,
     ChurchModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [
