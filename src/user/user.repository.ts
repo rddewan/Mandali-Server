@@ -32,6 +32,18 @@ export class UserRepository {
         where: {
           id: id,
         },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       return user;

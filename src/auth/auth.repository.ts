@@ -22,6 +22,18 @@ export class AuthRepository {
           phoneNumber,
           email,
         },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       return user;
@@ -36,6 +48,18 @@ export class AuthRepository {
         where: {
           email,
         },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!user) {
@@ -48,11 +72,23 @@ export class AuthRepository {
     }
   }
 
-  async findUserById(id: number): Promise<User> {
+  async findUserById(id: number) {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
           id,
+        },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 

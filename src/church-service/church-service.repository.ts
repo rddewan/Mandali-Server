@@ -23,11 +23,10 @@ export class ChurchServiceRepository {
           worship: data.worship,
           serviceType: data.serviceType,
           createdBy: data.createdBy,
+          churchId: data.churchId,
         },
       });
     } catch (error) {
-      console.log(error);
-
       this.repositoryError.handleError(error);
     }
   }
@@ -60,11 +59,11 @@ export class ChurchServiceRepository {
   async findAllChurchService(
     page: number,
     limit: number,
+    churchId: number,
   ): Promise<ChurchService[]> {
-    console.log(page, limit);
-
     try {
       return await this.prisma.churchService.findMany({
+        where: { churchId: churchId },
         skip: (page - 1) * limit,
         take: limit,
         orderBy: {
@@ -72,8 +71,6 @@ export class ChurchServiceRepository {
         },
       });
     } catch (error) {
-      console.log(error);
-
       this.repositoryError.handleError(error);
     }
   }

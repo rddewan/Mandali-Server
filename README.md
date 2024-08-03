@@ -11,6 +11,10 @@ Church management SAAS
 - Run DB migration `npx prisma migrate dev --name init`
 - Run DB Seed ``
 
+### DB migration in Development
+* `npm run prisma-migrate:dev` and follow the instruction
+* `npx prisma generate` update prisma client after change in schema
+
 
 ### Generate Base64
 -  openssl rand -base64 32

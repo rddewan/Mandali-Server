@@ -9,8 +9,16 @@ export class ChurchServiceService {
     private readonly churchServiceRepository: ChurchServiceRepository,
   ) {}
 
-  async findAll(page: number, limit: number): Promise<ChurchService[]> {
-    return await this.churchServiceRepository.findAllChurchService(page, limit);
+  async findAll(
+    page: number,
+    limit: number,
+    churchId: number,
+  ): Promise<ChurchService[]> {
+    return await this.churchServiceRepository.findAllChurchService(
+      page,
+      limit,
+      churchId,
+    );
   }
 
   async findById(id: number): Promise<ChurchService> {

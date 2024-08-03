@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { plainToClass } from 'class-transformer';
-import { UserDto } from 'src/common/dtos';
 
 @Injectable()
 export class UserService {
@@ -13,10 +11,12 @@ export class UserService {
 
   async me(id: number) {
     const user = await this.userRepository.me(id);
-
-    // Map and return UserDto instance
-    return plainToClass(UserDto, user, {
-      excludeExtraneousValues: true,
-    });
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      role: user.roles.map((role) => role.role),
+    };
   }
 }

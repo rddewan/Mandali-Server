@@ -41,4 +41,8 @@ export class ChurchServiceDto {
   @IsNotEmpty()
   @IsNumber()
   createdBy: number;
+
+  @IsNotEmpty()
+  @IsNumber()
+  churchId: number;
 }
