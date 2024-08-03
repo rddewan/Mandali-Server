@@ -2,15 +2,21 @@ import { ForbiddenException, Injectable } from '@nestjs/common';
 import { AuthRepository } from './auth.repository';
 import { plainToClass } from 'class-transformer';
 import { UserDto } from 'src/common/dtos/user.dto';
-import { AuthDto, LoginDto, RefreshTokenDto } from './dtos';
 import * as bcrypt from 'bcrypt';
-import { JwtPayload, Token } from './types';
+import { JwtPayload, LoginResponse, Token } from './types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import TokenExpiredException from 'src/common/exceptions/token-expired-exception';
 import FirebaseService from 'src/firebase/firebase.service';
 import { AuthType } from '@prisma/client';
+import {
+  AuthDto,
+  FirebaseLoginDto,
+  LoginDto,
+  PhoneAuthDto,
+  RefreshTokenDto,
+} from './dtos';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +37,7 @@ export class AuthService {
     });
   }
 
-  async login(data: LoginDto): Promise<Token> {
+  async login(data: LoginDto): Promise<LoginResponse> {
     const user = await this.authRepository.findUserByEmail(data.email);
 
     const isPasswordMatch = await this.comparePassword(
@@ -44,13 +50,23 @@ export class AuthService {
     }
 
     const token = await this.createToken(user.id);
+    const findUser = await this.authRepository.findUserById(user.id);
 
-    return token;
+    return {
+      token,
+      user: {
+        id: findUser.id,
+        name: findUser.name,
+        email: findUser.email,
+        phoneNumber: findUser.phoneNumber,
+        role: findUser.roles.map((role) => role.role),
+      },
+    };
   }
 
-  async loginWithFirebaseToken(token: string): Promise<Token> {
+  async loginWithFirebaseToken(dto: FirebaseLoginDto): Promise<LoginResponse> {
     // verify the token
-    const decodedToken = await this.firebaseService.verifyIdToken(token);
+    const decodedToken = await this.firebaseService.verifyIdToken(dto.token);
     // fetch the user from the firebase using the decoded token
     const firebaseUser = await this.firebaseService.getUser(decodedToken.uid);
 
@@ -61,23 +77,44 @@ export class AuthService {
 
     // if no user, create a new user
     if (!user) {
-      const data = {
+      const data: PhoneAuthDto = {
         name: firebaseUser.displayName || firebaseUser.phoneNumber,
         email: firebaseUser.email || firebaseUser.phoneNumber,
         phoneNumber: firebaseUser.phoneNumber,
         authType: firebaseUser.phoneNumber ? AuthType.phone : AuthType.social,
+        churchId: dto.churchId,
       };
 
-      const newUser = await this.authRepository.createUser(data);
+      const newUser = await this.authRepository.createPhoneAuthUser(data);
+      const findUser = await this.authRepository.findUserById(newUser.id);
       const token = await this.createToken(newUser.id);
 
-      return token;
+      return {
+        token,
+        user: {
+          id: findUser.id,
+          name: findUser.name,
+          email: findUser.email,
+          phoneNumber: findUser.phoneNumber,
+          role: findUser.roles.map((role) => role.role),
+        },
+      };
 
       // if user exists, create a new token
     } else {
       const token = await this.createToken(user.id);
+      const findUser = await this.authRepository.findUserById(user.id);
 
-      return token;
+      return {
+        token,
+        user: {
+          id: findUser.id,
+          name: findUser.name,
+          email: findUser.email,
+          phoneNumber: findUser.phoneNumber,
+          role: findUser.roles.map((role) => role.role),
+        },
+      };
     }
   }
 
@@ -133,7 +170,7 @@ export class AuthService {
 
     const refresh_token = await this.jwtService.signAsync(payload, {
       secret: this.configService.get<string>('JWT_REFRESH_TOKEN_SECRET'),
-      expiresIn: '1m',
+      expiresIn: '10m',
     });
 
     await this.prisma.refreshToken.create({

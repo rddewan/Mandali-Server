@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthType, RoleType, User } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { AuthDto } from './dtos';
+import { AuthDto, PhoneAuthDto } from './dtos';
 import RepositroyError from 'src/common/errors/repository-error';
 
 @Injectable()
@@ -22,11 +22,19 @@ export class AuthRepository {
           phoneNumber,
           email,
         },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
-
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
 
       return user;
     } catch (error) {
@@ -40,6 +48,18 @@ export class AuthRepository {
         where: {
           email,
         },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!user) {
@@ -52,11 +72,23 @@ export class AuthRepository {
     }
   }
 
-  async findUserById(id: number): Promise<User> {
+  async findUserById(id: number) {
     try {
       const user = await this.prisma.user.findUnique({
         where: {
           id,
+        },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -82,9 +114,33 @@ export class AuthRepository {
     }
   }
 
-  async createUser(data: AuthDto | Record<string, any>): Promise<User> {
+  async createUser(data: AuthDto): Promise<User> {
     try {
       const passwordHash = await this.hashPassword(data.password);
+      console.log(passwordHash);
+
+      return await this.prisma.user.create({
+        data: {
+          name: data.name,
+          email: data.email,
+          passwordHash: passwordHash,
+          authType: AuthType.email,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.admin } } }],
+          },
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async createAdminUser(data: AuthDto): Promise<User> {
+    try {
+      const passwordHash = await this.hashPassword(data.password);
+      console.log(passwordHash);
+
       return await this.prisma.user.create({
         data: {
           name: data.name,
@@ -97,6 +153,44 @@ export class AuthRepository {
               { role: { connect: { name: RoleType.admin } } },
               { role: { connect: { name: RoleType.user } } },
             ],
+          },
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  /**
+   * Creates a new user with phone authentication or updates an existing user with the same phone number.
+   *
+   * @param {PhoneAuthDto} data - The data containing the user's name, email, phone number, authentication type, and church ID.
+   * @return {Promise<User>} A promise that resolves to the created or updated user.
+   */
+  async createPhoneAuthUser(data: PhoneAuthDto): Promise<User> {
+    try {
+      return await this.prisma.user.upsert({
+        where: {
+          phoneNumber: data.phoneNumber,
+        },
+        update: {
+          name: data.name,
+          email: data.email,
+          authType: data.authType,
+          phoneNumber: data.phoneNumber,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.user } } }],
+          },
+        },
+        create: {
+          name: data.name,
+          email: data.email,
+          phoneNumber: data.phoneNumber,
+          authType: data.authType,
+          churchId: data.churchId,
+          roles: {
+            create: [{ role: { connect: { name: RoleType.user } } }],
           },
         },
       });

@@ -12,6 +12,7 @@ import { AuthDto, FirebaseLoginDto, LoginDto, RefreshTokenDto } from './dtos';
 import { CookieOptions, Response } from 'express-serve-static-core';
 import { ConfigService } from '@nestjs/config';
 import { PublicRoute } from 'src/common/decorators';
+import { Token } from './types';
 
 @Controller()
 export class AuthController {
@@ -40,8 +41,58 @@ export class AuthController {
     @Body() data: LoginDto,
     @Res({ passthrough: true }) res: Response,
   ) {
-    // get token
-    const token = await this.authService.login(data);
+    // get loginResponse
+    const loginResponse = await this.authService.login(data);
+
+    this.setHttpOnlyCookie(res, loginResponse.token);
+
+    return {
+      status: 'success',
+      data: loginResponse,
+    };
+  }
+
+  @PublicRoute()
+  @Post('api/v1/auth/refresh')
+  @HttpCode(HttpStatus.OK)
+  async refresh(@Body() data: RefreshTokenDto) {
+    const result = await this.authService.refresh(data);
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @PublicRoute()
+  @Post('api/v1/auth/login-with-firebase-token')
+  @HttpCode(HttpStatus.OK)
+  async loginWithFirebaseToken(
+    @Body() data: FirebaseLoginDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const loginResponse = await this.authService.loginWithFirebaseToken(data);
+
+    this.setHttpOnlyCookie(res, loginResponse.token);
+
+    return {
+      status: 'success',
+      data: loginResponse,
+    };
+  }
+
+  @PublicRoute()
+  @Post('api/v1/auth/email-exists')
+  @HttpCode(HttpStatus.OK)
+  async emailExists(@Body() data: { email: string }) {
+    const result = await this.authService.emailExists(data.email);
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  private setHttpOnlyCookie(res: Response, token: Token) {
     // one minute = 60 * 1000
     const oneMinute = 60 * 1000;
     // one hour = 60 * 60 * 1000
@@ -70,45 +121,5 @@ export class AuthController {
     res.cookie('access_token', token.access_token, accessTokenCookiesOption);
     // set cookies for refresh token
     res.cookie('refresh_token', token.refresh_token, refreshTokenCookiesOption);
-
-    return {
-      status: 'success',
-      data: token,
-    };
-  }
-
-  @PublicRoute()
-  @Post('api/v1/auth/refresh')
-  @HttpCode(HttpStatus.OK)
-  async refresh(@Body() data: RefreshTokenDto) {
-    const result = await this.authService.refresh(data);
-
-    return {
-      status: 'success',
-      data: result,
-    };
-  }
-
-  @PublicRoute()
-  @Post('api/v1/auth/login-with-firebase-token')
-  @HttpCode(HttpStatus.OK)
-  async loginWithFirebaseToken(@Body() data: FirebaseLoginDto) {
-    const result = await this.authService.loginWithFirebaseToken(data.token);
-
-    return {
-      status: 'success',
-      data: result,
-    };
-  }
-
-  @PublicRoute()
-  @Post('api/v1/auth/email-exists')
-  @HttpCode(HttpStatus.OK)
-  async emailExists(@Body() data: { email: string }) {
-    const result = await this.authService.emailExists(data.email);
-    return {
-      status: 'success',
-      data: result,
-    };
   }
 }

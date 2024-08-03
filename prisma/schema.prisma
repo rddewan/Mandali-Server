@@ -43,8 +43,13 @@ model Church {
 
   // Define the one-to-many relationship with the User model
   users User[]
-
+  // define one-to-one relationship with ChurchSetting model
+  churchSetting ChurchSetting?
+  // church service
+  churchServices ChurchService[]
+  
   @@map("churchs")
+
 }
 
 model User {
@@ -128,12 +133,29 @@ model ChurchService {
   worship     String?
   serviceType ServiceType
   createdBy   Int
+  churchId    Int
 
   createAt  DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // foreign key - establish the relation with the User model
   user User @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  // foreign key - establish the relation with the Church model
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
 
   @@map("church_services")
+}
+
+model ChurchSetting {
+  id    Int @id @default(autoincrement())
+  churchId Int @unique
+  timeZone  String
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+
+  church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
+
+  @@map("church_setting")
 }
