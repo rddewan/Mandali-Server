@@ -3,7 +3,7 @@ import { AuthRepository } from './auth.repository';
 import { plainToClass } from 'class-transformer';
 import { UserDto } from 'src/common/dtos/user.dto';
 import * as bcrypt from 'bcrypt';
-import { JwtPayload, Token } from './types';
+import { JwtPayload, LoginResponse, Token } from './types';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -37,7 +37,7 @@ export class AuthService {
     });
   }
 
-  async login(data: LoginDto): Promise<Token> {
+  async login(data: LoginDto): Promise<LoginResponse> {
     const user = await this.authRepository.findUserByEmail(data.email);
 
     const isPasswordMatch = await this.comparePassword(
@@ -50,11 +50,21 @@ export class AuthService {
     }
 
     const token = await this.createToken(user.id);
+    const findUser = await this.authRepository.findUserById(user.id);
 
-    return token;
+    return {
+      token,
+      user: {
+        id: findUser.id,
+        name: findUser.name,
+        email: findUser.email,
+        phoneNumber: findUser.phoneNumber,
+        role: findUser.roles.map((role) => role.role),
+      },
+    };
   }
 
-  async loginWithFirebaseToken(dto: FirebaseLoginDto): Promise<Token> {
+  async loginWithFirebaseToken(dto: FirebaseLoginDto): Promise<LoginResponse> {
     // verify the token
     const decodedToken = await this.firebaseService.verifyIdToken(dto.token);
     // fetch the user from the firebase using the decoded token
@@ -76,15 +86,35 @@ export class AuthService {
       };
 
       const newUser = await this.authRepository.createPhoneAuthUser(data);
+      const findUser = await this.authRepository.findUserById(newUser.id);
       const token = await this.createToken(newUser.id);
 
-      return token;
+      return {
+        token,
+        user: {
+          id: findUser.id,
+          name: findUser.name,
+          email: findUser.email,
+          phoneNumber: findUser.phoneNumber,
+          role: findUser.roles.map((role) => role.role),
+        },
+      };
 
       // if user exists, create a new token
     } else {
       const token = await this.createToken(user.id);
+      const findUser = await this.authRepository.findUserById(user.id);
 
-      return token;
+      return {
+        token,
+        user: {
+          id: findUser.id,
+          name: findUser.name,
+          email: findUser.email,
+          phoneNumber: findUser.phoneNumber,
+          role: findUser.roles.map((role) => role.role),
+        },
+      };
     }
   }
 

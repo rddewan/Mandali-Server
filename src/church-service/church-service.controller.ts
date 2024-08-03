@@ -8,19 +8,26 @@ import {
   Patch,
   Post,
   Query,
+  Req,
 } from '@nestjs/common';
 import { ChurchServiceService } from './church-service.service';
 import { ChurchServiceDto, ChurchServicePaginationDto } from './dtos';
+import { Request } from 'express';
 
 @Controller()
 export class ChurchServiceController {
   constructor(private readonly churchServiceService: ChurchServiceService) {}
 
   @Get('api/v1/church-service')
-  async findAll(@Query() query: ChurchServicePaginationDto) {
+  async findAll(
+    @Req() req: Request,
+    @Query() query: ChurchServicePaginationDto,
+  ) {
+    const user = req.user;
     const result = await this.churchServiceService.findAll(
       query.page,
       query.limit,
+      user.churchId,
     );
 
     return {

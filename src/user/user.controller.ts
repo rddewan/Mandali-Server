@@ -28,9 +28,9 @@ export class UserController {
   }
 
   @Get('api/v1/users/me')
-  me(@Req() req: Request) {
+  async me(@Req() req: Request) {
     const user = req.user;
-    const result = this.userService.me(user.id);
+    const result = await this.userService.me(user.id);
 
     return {
       status: 'success',
