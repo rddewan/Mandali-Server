@@ -13,7 +13,7 @@ export class ChurchServiceService {
     page: number,
     limit: number,
     churchId: number,
-  ): Promise<ChurchService[]> {
+  ): Promise<{ data: ChurchService[]; total: number }> {
     return await this.churchServiceRepository.findAllChurchService(
       page,
       limit,
