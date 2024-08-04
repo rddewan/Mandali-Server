@@ -32,7 +32,12 @@ export class ChurchServiceController {
 
     return {
       status: 'success',
-      data: result,
+      data: result.data,
+      page: {
+        currentPage: query.page,
+        total: result.total,
+        totalPage: Math.ceil(result.total / query.limit),
+      },
     };
   }
 
