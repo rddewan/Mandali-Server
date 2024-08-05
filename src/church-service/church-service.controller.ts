@@ -13,10 +13,14 @@ import {
 import { ChurchServiceService } from './church-service.service';
 import { ChurchServiceDto, ChurchServicePaginationDto } from './dtos';
 import { Request } from 'express';
+import FirebaseService from 'src/firebase/firebase.service';
 
 @Controller()
 export class ChurchServiceController {
-  constructor(private readonly churchServiceService: ChurchServiceService) {}
+  constructor(
+    private readonly churchServiceService: ChurchServiceService,
+    private readonly firebaseService: FirebaseService,
+  ) {}
 
   @Get('api/v1/church-service')
   async findAll(
@@ -54,6 +58,12 @@ export class ChurchServiceController {
   @Post('api/v1/church-service')
   async create(@Body() data: ChurchServiceDto) {
     const result = await this.churchServiceService.create(data);
+    this.firebaseService.sendNotification(result.churchId.toString(), {
+      notification: {
+        title: 'New Church Service',
+        body: 'New Church Service has been created',
+      },
+    });
     return {
       status: 'success',
       data: result,

@@ -46,6 +46,22 @@ export default class FirebaseRepository {
     }
   }
 
+  async sendNotification(
+    topic: string,
+    payload: admin.messaging.MessagingPayload,
+  ) {
+    try {
+      const response = await this.firebaseAdmin
+        .messaging()
+        .sendToTopic(topic, payload);
+
+      console.log('Notification sent successfully:', response);
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      this.throwError(error);
+    }
+  }
+
   private throwError(error: any) {
     // https://firebase.google.com/docs/auth/admin/errors
     if (error instanceof Error) {
