@@ -14,14 +14,12 @@ import { ChurchServiceService } from './church-service.service';
 import { ChurchServiceDto, ChurchServicePaginationDto } from './dtos';
 import { Request } from 'express';
 import FirebaseService from 'src/firebase/firebase.service';
-import { ChurchService } from 'src/church/church.service';
 import { format } from 'date-fns';
 
 @Controller()
 export class ChurchServiceController {
   constructor(
     private readonly churchServiceService: ChurchServiceService,
-    private readonly churchService: ChurchService,
     private readonly firebaseService: FirebaseService,
   ) {}
 
@@ -61,11 +59,10 @@ export class ChurchServiceController {
   @Post('api/v1/church-service')
   async create(@Body() data: ChurchServiceDto) {
     const result = await this.churchServiceService.create(data);
-    // find the church by id
-    const church = await this.churchService.findChurchById(result.churchId);
+
     const formattedDate = format(result.date, 'dd MMM yyyy');
     // send firebase notification
-    this.firebaseService.sendNotification(church.name, {
+    this.firebaseService.sendNotification(result.churchId.toString(), {
       notification: {
         title: 'New Church Service',
         body: `New Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
