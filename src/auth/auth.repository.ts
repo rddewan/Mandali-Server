@@ -33,6 +33,12 @@ export class AuthRepository {
               },
             },
           },
+          church: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
 
@@ -57,6 +63,12 @@ export class AuthRepository {
                   name: true,
                 },
               },
+            },
+          },
+          church: {
+            select: {
+              id: true,
+              name: true,
             },
           },
         },
@@ -87,6 +99,12 @@ export class AuthRepository {
                   name: true,
                 },
               },
+            },
+          },
+          church: {
+            select: {
+              id: true,
+              name: true,
             },
           },
         },

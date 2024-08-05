@@ -7,7 +7,7 @@ export type LoginResponse = {
     name: string;
     email: string;
     phoneNumber?: string;
-    churchId: number;
     role: object;
+    church: object;
   };
 };

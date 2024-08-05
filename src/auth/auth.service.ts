@@ -59,8 +59,11 @@ export class AuthService {
         name: findUser.name,
         email: findUser.email,
         phoneNumber: findUser.phoneNumber,
-        churchId: findUser.churchId,
         role: findUser.roles.map((role) => role.role),
+        church: {
+          id: findUser.church.id,
+          name: findUser.church.name,
+        },
       },
     };
   }
@@ -97,8 +100,11 @@ export class AuthService {
           name: findUser.name,
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
-          churchId: findUser.churchId,
           role: findUser.roles.map((role) => role.role),
+          church: {
+            id: findUser.church.id,
+            name: findUser.church.name,
+          },
         },
       };
 
@@ -114,8 +120,11 @@ export class AuthService {
           name: findUser.name,
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
-          churchId: findUser.churchId,
           role: findUser.roles.map((role) => role.role),
+          church: {
+            id: findUser.church.id,
+            name: findUser.church.name,
+          },
         },
       };
     }
