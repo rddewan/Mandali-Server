@@ -43,6 +43,12 @@ export class UserRepository {
               },
             },
           },
+          church: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
         },
       });
 
