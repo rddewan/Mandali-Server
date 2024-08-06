@@ -20,4 +20,8 @@ export class UserService {
       church: user.church,
     };
   }
+
+  async deleteMe(userId: number) {
+    return this.userRepository.deleteMe(userId);
+  }
 }
