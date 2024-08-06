@@ -17,6 +17,7 @@ export class UserService {
       email: user.email,
       phoneNumber: user.phoneNumber,
       role: user.roles.map((role) => role.role),
+      church: user.church,
     };
   }
 }
