@@ -57,4 +57,16 @@ export class UserRepository {
       this.repositoryError.handleError(error);
     }
   }
+
+  async deleteMe(userId: number) {
+    try {
+      await this.prisma.user.delete({
+        where: {
+          id: userId,
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
 }
