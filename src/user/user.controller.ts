@@ -1,10 +1,14 @@
 import { Controller, Delete, Get, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Request } from 'express';
+import FirebaseService from 'src/firebase/firebase.service';
 
 @Controller()
 export class UserController {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private firebaseService: FirebaseService,
+  ) {}
 
   @Get('api/v1/users/:id/roles')
   getUserRoles() {
@@ -42,6 +46,7 @@ export class UserController {
   async deleteMe(@Req() req: Request) {
     const user = req.user;
     await this.userService.deleteMe(user.id);
+    await this.firebaseService.deleteUser(user.firebaseUID);
 
     return {
       status: 'success',

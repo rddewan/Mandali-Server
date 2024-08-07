@@ -29,7 +29,7 @@ export class ChurchServiceController {
     @Query() query: ChurchServicePaginationDto,
   ) {
     const user = req.user;
-    const result = await this.churchServiceService.findAll(
+    const result = await this.churchServiceService.findChurchServicesByChurchId(
       query.page,
       query.limit,
       user.churchId,

@@ -65,6 +65,7 @@ model User {
   photo         String?
   authType      AuthType @default(email)
   emailVerified Boolean  @default(false)
+  firebaseUID   String?  @unique
 
   // establish a one-to-many relationship with the RefreshToken model.
   refreshToken   RefreshToken[]

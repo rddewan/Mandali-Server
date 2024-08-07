@@ -87,6 +87,7 @@ export class AuthService {
         phoneNumber: firebaseUser.phoneNumber,
         authType: firebaseUser.phoneNumber ? AuthType.phone : AuthType.social,
         churchId: dto.churchId,
+        firebaseUID: firebaseUser.uid,
       };
 
       const newUser = await this.authRepository.createPhoneAuthUser(data);

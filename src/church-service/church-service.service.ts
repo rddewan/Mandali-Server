@@ -9,12 +9,12 @@ export class ChurchServiceService {
     private readonly churchServiceRepository: ChurchServiceRepository,
   ) {}
 
-  async findAll(
+  async findChurchServicesByChurchId(
     page: number,
     limit: number,
     churchId: number,
   ): Promise<{ data: ChurchService[]; total: number }> {
-    return await this.churchServiceRepository.findAllChurchService(
+    return await this.churchServiceRepository.findChurchServicesByChurchId(
       page,
       limit,
       churchId,
