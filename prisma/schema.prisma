@@ -21,6 +21,7 @@ enum AuthType {
 }
 
 enum RoleType {
+  superAdmin
   user
   admin
   secretary
