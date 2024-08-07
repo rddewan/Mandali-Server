@@ -33,7 +33,7 @@ export class AdminController {
   }
 
   @Delete('api/v1/admin/delete-user-role')
-  @Roles('admin', 'superAdmin')
+  @Roles(RoleType.admin, RoleType.superAdmin)
   async deleteUserRole(
     @Query('roleId', ParseIntPipe) roleId: number,
     @Query('userId', ParseIntPipe) userId: number,
