@@ -197,6 +197,7 @@ export class AuthRepository {
           authType: data.authType,
           phoneNumber: data.phoneNumber,
           churchId: data.churchId,
+          firebaseUID: data.firebaseUID,
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },
@@ -207,6 +208,7 @@ export class AuthRepository {
           phoneNumber: data.phoneNumber,
           authType: data.authType,
           churchId: data.churchId,
+          firebaseUID: data.firebaseUID,
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },

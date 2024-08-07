@@ -62,6 +62,14 @@ export default class FirebaseRepository {
     }
   }
 
+  async deleteUser(uid: string) {
+    try {
+      await this.firebaseAdmin.auth().deleteUser(uid);
+    } catch (error) {
+      this.throwError(error);
+    }
+  }
+
   private throwError(error: any) {
     // https://firebase.google.com/docs/auth/admin/errors
     if (error instanceof Error) {

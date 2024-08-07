@@ -27,4 +27,7 @@ export class PhoneAuthDto {
 
   @IsNotEmpty()
   authType: AuthType;
+
+  @IsOptional()
+  firebaseUID?: string;
 }

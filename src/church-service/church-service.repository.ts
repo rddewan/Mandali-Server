@@ -56,7 +56,7 @@ export class ChurchServiceRepository {
     }
   }
 
-  async findAllChurchService(
+  async findChurchServicesByChurchId(
     page: number,
     limit: number,
     churchId: number,
