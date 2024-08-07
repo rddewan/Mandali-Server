@@ -10,6 +10,7 @@ import { AuthenticationGuard } from './guards/authentication.guard';
 import { ChurchServiceModule } from './church-service/church-service.module';
 import { ChurchModule } from './church/church.module';
 import { UserModule } from './user/user.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { UserModule } from './user/user.module';
     ChurchServiceModule,
     ChurchModule,
     UserModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [
