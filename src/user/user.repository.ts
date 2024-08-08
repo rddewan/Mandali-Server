@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import RepositoryError from 'src/common/errors/repository-error';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { UpdateUserDto } from './dtos';
 
 @Injectable()
 export class UserRepository {
@@ -11,16 +12,23 @@ export class UserRepository {
 
   async getUserRoles(userId: number) {
     try {
-      return this.prisma.user.findUnique({
+      const userWithRoles = await this.prisma.user.findUnique({
         where: { id: userId },
-        select: {
+        include: {
           roles: {
-            select: {
-              role: true,
+            include: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
             },
           },
         },
       });
+
+      return userWithRoles.roles.map((userRole) => userRole.role);
     } catch (error) {
       this.repositoryError.handleError(error);
     }
@@ -63,6 +71,21 @@ export class UserRepository {
       await this.prisma.user.delete({
         where: {
           id: userId,
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async updateMe(userId: number, data: UpdateUserDto) {
+    try {
+      return await this.prisma.user.update({
+        where: {
+          id: userId,
+        },
+        data: {
+          name: data.name,
         },
       });
     } catch (error) {
