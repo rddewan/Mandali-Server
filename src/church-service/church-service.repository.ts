@@ -31,11 +31,11 @@ export class ChurchServiceRepository {
     }
   }
 
-  async updateChurchService(id: number, data: Partial<ChurchServiceDto>) {
+  async updateChurchService(data: Partial<ChurchServiceDto>) {
     try {
       return await this.prisma.churchService.update({
         where: {
-          id,
+          id: data.id,
         },
         data,
       });

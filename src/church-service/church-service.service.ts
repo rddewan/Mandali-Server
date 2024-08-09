@@ -29,8 +29,8 @@ export class ChurchServiceService {
     return await this.churchServiceRepository.createChurchService(data);
   }
 
-  async update(id: number, data: Partial<ChurchServiceDto>) {
-    return await this.churchServiceRepository.updateChurchService(id, data);
+  async update(data: Partial<ChurchServiceDto>) {
+    return await this.churchServiceRepository.updateChurchService(data);
   }
 
   async delete(id: number): Promise<ChurchService> {
