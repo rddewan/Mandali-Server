@@ -75,12 +75,9 @@ export class ChurchServiceController {
     };
   }
 
-  @Patch('api/v1/church-service/:id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: Partial<ChurchServiceDto>,
-  ) {
-    const result = await this.churchServiceService.update(id, data);
+  @Patch('api/v1/church-service')
+  async update(@Body() data: Partial<ChurchServiceDto>) {
+    const result = await this.churchServiceService.update(data);
 
     return {
       status: 'success',
