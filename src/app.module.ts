@@ -11,6 +11,7 @@ import { ChurchServiceModule } from './church-service/church-service.module';
 import { ChurchModule } from './church/church.module';
 import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
+import { S3Module } from './aws/s3/s3.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { AdminModule } from './admin/admin.module';
     ChurchModule,
     UserModule,
     AdminModule,
+    S3Module,
   ],
   controllers: [AppController],
   providers: [
