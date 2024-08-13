@@ -86,6 +86,7 @@ export class UserRepository {
         },
         data: {
           name: data.name,
+          photo: data.photo,
         },
       });
     } catch (error) {
