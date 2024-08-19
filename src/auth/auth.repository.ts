@@ -135,7 +135,6 @@ export class AuthRepository {
   async createUser(data: AuthDto): Promise<User> {
     try {
       const passwordHash = await this.hashPassword(data.password);
-      console.log(passwordHash);
 
       return await this.prisma.user.create({
         data: {
