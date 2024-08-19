@@ -60,12 +60,12 @@ export class ChurchServiceController {
   async create(@Body() data: ChurchServiceDto) {
     const result = await this.churchServiceService.create(data);
 
-    const formattedDate = format(result.date, 'dd MMM yyyy');
     // send firebase notification
+    const formattedDate = format(result.date, 'dd MMM yyyy');
     this.firebaseService.sendNotification(result.churchId.toString(), {
       notification: {
         title: 'New Church Service',
-        body: `New Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
+        body: `Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
       },
     });
 
@@ -78,6 +78,15 @@ export class ChurchServiceController {
   @Patch('api/v1/church-service')
   async update(@Body() data: Partial<ChurchServiceDto>) {
     const result = await this.churchServiceService.update(data);
+
+    // send firebase notification
+    const formattedDate = format(result.date, 'dd MMM yyyy');
+    this.firebaseService.sendNotification(result.churchId.toString(), {
+      notification: {
+        title: 'Church Service Updated',
+        body: `Church Service has been updated for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
+      },
+    });
 
     return {
       status: 'success',
