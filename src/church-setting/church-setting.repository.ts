@@ -12,9 +12,10 @@ export class ChurchSettingRepository {
   async findById(id: number) {
     try {
       return await this.prisma.churchSetting.findUnique({
-        where: { id },
+        where: { churchId: id },
         select: {
           id: true,
+          churchId: true,
           timeZone: true,
         },
       });

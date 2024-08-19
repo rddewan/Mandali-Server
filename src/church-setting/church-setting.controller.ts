@@ -1,4 +1,4 @@
-import { Controller, Get, Res } from '@nestjs/common';
+import { Controller, Get, Req } from '@nestjs/common';
 import { ChurchSettingService } from './church-setting.service';
 import { Request } from 'express';
 
@@ -7,8 +7,14 @@ export class ChurchSettingController {
   constructor(private readonly service: ChurchSettingService) {}
 
   @Get('api/v1/church-setting')
-  async findById(@Res() res: Request) {
+  async findById(@Req() res: Request) {
     const user = res.user;
-    return await this.service.findById(user.churchId);
+
+    const result = await this.service.findById(user.churchId);
+
+    return {
+      status: 'success',
+      data: result,
+    };
   }
 }
