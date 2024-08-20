@@ -1,32 +1,39 @@
 import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { UpdateUserDto } from './dtos';
+import { S3Service } from 'src/aws/s3/s3.service';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private readonly s3Service: S3Service,
+  ) {}
 
-  async getUserRoles(userId: number) {
-    return await this.userRepository.getUserRoles(userId);
-  }
+  async findUsersByChurchId(churchId: number) {
+    // Fetch users associated with the given church ID
+    const users = await this.userRepository.findUsersByChurchId(churchId);
 
-  async me(id: number) {
-    const user = await this.userRepository.me(id);
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
-      role: user.roles.map((role) => role.role),
-      church: user.church,
-    };
-  }
+    // Map through the users and construct the desired response
+    const userPromises = users.map(async (user) => {
+      // Get the signed URL for the user's photo if it exists
+      const photo = user.photo
+        ? await this.s3Service.getSignedUrl(user.photo, 3600)
+        : null;
 
-  async deleteMe(userId: number) {
-    return this.userRepository.deleteMe(userId);
-  }
+      return {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        photo,
+        role: user.roles.map((userRole) => ({
+          id: userRole.role.id,
+          name: userRole.role.name,
+        })),
+      };
+    });
 
-  async updateMe(userId: number, data: UpdateUserDto) {
-    return this.userRepository.updateMe(userId, data);
+    // Wait for all promises to resolve and return the final result
+    return Promise.all(userPromises);
   }
 }
