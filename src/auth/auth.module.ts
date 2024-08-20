@@ -4,10 +4,11 @@ import { AuthController } from './auth.controller';
 import { AuthRepository } from './auth.repository';
 import RepositoryError from 'src/common/errors/repository-error';
 import { FirebaseModule } from 'src/firebase/firebase.module';
+import { ChurchSettingModule } from 'src/church-setting/church-setting.module';
 
 @Module({
   providers: [AuthRepository, AuthService, RepositoryError],
   controllers: [AuthController],
-  imports: [FirebaseModule],
+  imports: [FirebaseModule, ChurchSettingModule],
 })
 export class AuthModule {}

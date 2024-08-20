@@ -7,5 +7,6 @@ import { ChurchSettingController } from './church-setting.controller';
 @Module({
   controllers: [ChurchSettingController],
   providers: [ChurchSettingRepository, ChurchSettingService, RepositoryError],
+  exports: [ChurchSettingRepository],
 })
 export class ChurchSettingModule {}
