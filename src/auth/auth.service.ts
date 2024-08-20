@@ -53,9 +53,6 @@ export class AuthService {
 
     const token = await this.createToken(user.id);
     const findUser = await this.authRepository.findUserById(user.id);
-    const churchSetting = await this.churchSettingRepository.findById(
-      findUser.churchId,
-    );
 
     return {
       token,
@@ -68,7 +65,7 @@ export class AuthService {
         church: {
           id: findUser.church.id,
           name: findUser.church.name,
-          timeZone: churchSetting.timeZone,
+          timeZone: findUser.church.churchSetting.timeZone,
         },
       },
     };
@@ -98,9 +95,7 @@ export class AuthService {
 
       const newUser = await this.authRepository.createPhoneAuthUser(data);
       const findUser = await this.authRepository.findUserById(newUser.id);
-      const churchSetting = await this.churchSettingRepository.findById(
-        findUser.churchId,
-      );
+
       const token = await this.createToken(newUser.id);
 
       return {
@@ -114,7 +109,7 @@ export class AuthService {
           church: {
             id: findUser.church.id,
             name: findUser.church.name,
-            timeZone: churchSetting.timeZone,
+            timeZone: findUser.church.churchSetting.timeZone,
           },
         },
       };
@@ -123,9 +118,6 @@ export class AuthService {
     } else {
       const token = await this.createToken(user.id);
       const findUser = await this.authRepository.findUserById(user.id);
-      const churchSetting = await this.churchSettingRepository.findById(
-        findUser.churchId,
-      );
 
       return {
         token,
@@ -138,7 +130,7 @@ export class AuthService {
           church: {
             id: findUser.church.id,
             name: findUser.church.name,
-            timeZone: churchSetting.timeZone,
+            timeZone: findUser.church.churchSetting.timeZone,
           },
         },
       };

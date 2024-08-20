@@ -37,6 +37,11 @@ export class AuthRepository {
             select: {
               id: true,
               name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
             },
           },
         },
@@ -69,6 +74,11 @@ export class AuthRepository {
             select: {
               id: true,
               name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
             },
           },
         },
@@ -105,6 +115,11 @@ export class AuthRepository {
             select: {
               id: true,
               name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
             },
           },
         },

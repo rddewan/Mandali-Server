@@ -13,6 +13,7 @@ import { UserModule } from './user/user.module';
 import { AdminModule } from './admin/admin.module';
 import { S3Module } from './aws/s3/s3.module';
 import { ChurchSettingModule } from './church-setting/church-setting.module';
+import { MeModule } from './me/me.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { ChurchSettingModule } from './church-setting/church-setting.module';
     ChurchServiceModule,
     ChurchModule,
     UserModule,
+    MeModule,
     AdminModule,
     S3Module,
     ChurchSettingModule,
