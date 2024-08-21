@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { AuthType } from '@prisma/client';
 import RepositoryError from 'src/common/errors/repository-error';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -11,45 +11,58 @@ export class MemberRepository {
   ) {}
 
   async findMembersById(id: number) {
-    const member = await this.prisma.user.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        roles: {
-          select: {
-            role: {
-              select: {
-                id: true,
-                name: true,
+    try {
+      const member = await this.prisma.user.findUnique({
+        where: {
+          id,
+        },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
-    return member;
+      });
+
+      if (member === null) {
+        throw new NotFoundException('Member not found');
+      }
+
+      return member;
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
   }
 
   async findMembersByChurchId(churchId: number) {
-    const members = await this.prisma.user.findMany({
-      where: {
-        churchId,
-        authType: { not: AuthType.email },
-      },
-      include: {
-        roles: {
-          select: {
-            role: {
-              select: {
-                id: true,
-                name: true,
+    try {
+      const members = await this.prisma.user.findMany({
+        where: {
+          churchId,
+          authType: { not: AuthType.email },
+        },
+        include: {
+          roles: {
+            select: {
+              role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    });
-    return members;
+      });
+      return members;
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
   }
 }
