@@ -1,4 +1,4 @@
-import { Controller, Get, Req } from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Req } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { Request } from 'express';
 import FirebaseService from 'src/firebase/firebase.service';
@@ -15,11 +15,23 @@ export class MemberController {
   @Get('api/v1/members')
   async findUsersByChurchId(@Req() req: Request) {
     const user = req.user;
-    const users = await this.memberService.findUsersByChurchId(user.churchId);
+    const members = await this.memberService.findMembersByChurchId(
+      user.churchId,
+    );
 
     return {
       status: 'success',
-      data: users,
+      data: members,
+    };
+  }
+
+  @Get('api/v1/members/:id')
+  async findMemberById(@Param('id', ParseIntPipe) id: number) {
+    const member = await this.memberService.findMembersByChurchId(id);
+
+    return {
+      status: 'success',
+      data: member,
     };
   }
 }
