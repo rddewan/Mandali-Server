@@ -101,7 +101,10 @@ export class AuthService {
       const newUser = await this.authRepository.createPhoneAuthUser(data);
       const findUser = await this.authRepository.findUserById(newUser.id);
       // Get the signed URL for the user's photo if it exists
-      const photo = await this.signedPhotoUrl(newUser.photo);
+      if (newUser.photo) {
+        await this.s3Service.deleteObject(newUser.photo);
+      }
+      const photo = await this.signedPhotoUrl(findUser.photo);
 
       const token = await this.createToken(newUser.id);
 
@@ -127,7 +130,7 @@ export class AuthService {
       const token = await this.createToken(user.id);
       const findUser = await this.authRepository.findUserById(user.id);
       // Get the signed URL for the user's photo if it exists
-      const photo = await this.signedPhotoUrl(user.photo);
+      const photo = await this.signedPhotoUrl(findUser.photo);
 
       return {
         token,
@@ -219,7 +222,10 @@ export class AuthService {
     return token;
   }
 
-  private async signedPhotoUrl(photo: string): Promise<string> {
+  private async signedPhotoUrl(photo: string | null): Promise<string | null> {
+    // if no photo, return null
+    if (!photo) return null;
+
     const result = await this.s3Service.getSignedUrl(photo, 3600);
     return result;
   }
