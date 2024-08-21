@@ -10,8 +10,29 @@ export class MemberRepository {
     private readonly repositoryError: RepositoryError,
   ) {}
 
-  async findUsersByChurchId(churchId: number) {
-    const users = await this.prisma.user.findMany({
+  async findMembersById(id: number) {
+    const member = await this.prisma.user.findUnique({
+      where: {
+        id,
+      },
+      include: {
+        roles: {
+          select: {
+            role: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return member;
+  }
+
+  async findMembersByChurchId(churchId: number) {
+    const members = await this.prisma.user.findMany({
       where: {
         churchId,
         authType: { not: AuthType.email },
@@ -29,6 +50,6 @@ export class MemberRepository {
         },
       },
     });
-    return users;
+    return members;
   }
 }
