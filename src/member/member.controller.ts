@@ -27,7 +27,7 @@ export class MemberController {
 
   @Get('api/v1/members/:id')
   async findMemberById(@Param('id', ParseIntPipe) id: number) {
-    const member = await this.memberService.findMembersByChurchId(id);
+    const member = await this.memberService.findMemberById(id);
 
     return {
       status: 'success',
