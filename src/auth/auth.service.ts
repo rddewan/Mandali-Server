@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import TokenExpiredException from 'src/common/exceptions/token-expired-exception';
 import FirebaseService from 'src/firebase/firebase.service';
-import { AuthType } from '@prisma/client';
+import { AuthType, RoleType } from '@prisma/client';
 import {
   AuthDto,
   FirebaseLoginDto,
@@ -58,6 +58,16 @@ export class AuthService {
     // Get the signed URL for the user's photo if it exists
     const photo = await this.signedPhotoUrl(findUser.photo);
 
+    // Check if the user has a 'member' role
+    const hasMemberRole = findUser.roles.some(
+      (role) => role.role.name === RoleType.member,
+    );
+
+    // Filter out the 'user' role if the user also has a 'member' role
+    const roles = hasMemberRole
+      ? findUser.roles.filter((role) => role.role.name !== RoleType.user)
+      : findUser.roles;
+
     return {
       token,
       user: {
@@ -66,7 +76,10 @@ export class AuthService {
         email: findUser.email,
         phoneNumber: findUser.phoneNumber,
         photo,
-        role: findUser.roles.map((role) => role.role),
+        role: roles.map((role) => ({
+          id: role.role.id,
+          name: role.role.name,
+        })),
         church: {
           id: findUser.church.id,
           name: findUser.church.name,
@@ -108,6 +121,16 @@ export class AuthService {
 
       const token = await this.createToken(newUser.id);
 
+      // Check if the user has a 'member' role
+      const hasMemberRole = findUser.roles.some(
+        (role) => role.role.name === RoleType.member,
+      );
+
+      // Filter out the 'user' role if the user also has a 'member' role
+      const roles = hasMemberRole
+        ? findUser.roles.filter((role) => role.role.name !== RoleType.user)
+        : findUser.roles;
+
       return {
         token,
         user: {
@@ -116,7 +139,10 @@ export class AuthService {
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
           photo,
-          role: findUser.roles.map((role) => role.role),
+          role: roles.map((role) => ({
+            id: role.role.id,
+            name: role.role.name,
+          })),
           church: {
             id: findUser.church.id,
             name: findUser.church.name,
@@ -132,6 +158,16 @@ export class AuthService {
       // Get the signed URL for the user's photo if it exists
       const photo = await this.signedPhotoUrl(findUser.photo);
 
+      // Check if the user has a 'member' role
+      const hasMemberRole = findUser.roles.some(
+        (role) => role.role.name === RoleType.member,
+      );
+
+      // Filter out the 'user' role if the user also has a 'member' role
+      const roles = hasMemberRole
+        ? findUser.roles.filter((role) => role.role.name !== RoleType.user)
+        : findUser.roles;
+
       return {
         token,
         user: {
@@ -140,7 +176,10 @@ export class AuthService {
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
           photo,
-          role: findUser.roles.map((role) => role.role),
+          role: roles.map((role) => ({
+            id: role.role.id,
+            name: role.role.name,
+          })),
           church: {
             id: findUser.church.id,
             name: findUser.church.name,

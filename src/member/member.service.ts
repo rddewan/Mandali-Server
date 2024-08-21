@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MemberRepository } from './member.repository';
 import { S3Service } from 'src/aws/s3/s3.service';
+import { RoleType } from '@prisma/client';
 
 @Injectable()
 export class MemberService {
@@ -17,16 +18,28 @@ export class MemberService {
       ? await this.s3Service.getSignedUrl(member.photo, 3600)
       : null;
 
+    // Check if the user has a 'member' role
+    const hasMemberRole = member.roles.some(
+      (role) => role.role.name === RoleType.member,
+    );
+
+    // Filter out the 'user' role if the user also has a 'member' role
+    const roles = hasMemberRole
+      ? member.roles.filter((role) => role.role.name !== RoleType.user)
+      : member.roles;
+
     return {
-      id: member.id,
-      name: member.name,
-      email: member.email,
-      phoneNumber: member.phoneNumber,
-      photo,
-      role: member.roles.map((userRole) => ({
-        id: userRole.role.id,
-        name: userRole.role.name,
-      })),
+      user: {
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        phoneNumber: member.phoneNumber,
+        photo,
+        role: roles.map((role) => ({
+          id: role.role.id,
+          name: role.role.name,
+        })),
+      },
     };
   }
 
@@ -35,22 +48,34 @@ export class MemberService {
     const members = await this.memberRepository.findMembersByChurchId(churchId);
 
     // Map through the users and construct the desired response
-    const membersPromises = members.map(async (user) => {
+    const membersPromises = members.map(async (member) => {
       // Get the signed URL for the user's photo if it exists
-      const photo = user.photo
-        ? await this.s3Service.getSignedUrl(user.photo, 3600)
+      const photo = member.photo
+        ? await this.s3Service.getSignedUrl(member.photo, 3600)
         : null;
 
+      // Check if the user has a 'member' role
+      const hasMemberRole = member.roles.some(
+        (role) => role.role.name === RoleType.member,
+      );
+
+      // Filter out the 'user' role if the user also has a 'member' role
+      const roles = hasMemberRole
+        ? member.roles.filter((role) => role.role.name !== RoleType.user)
+        : member.roles;
+
       return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        photo,
-        role: user.roles.map((userRole) => ({
-          id: userRole.role.id,
-          name: userRole.role.name,
-        })),
+        user: {
+          id: member.id,
+          name: member.name,
+          email: member.email,
+          phoneNumber: member.phoneNumber,
+          photo,
+          role: roles.map((role) => ({
+            id: role.role.id,
+            name: role.role.name,
+          })),
+        },
       };
     });
 
