@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
+import { AuthType } from '@prisma/client';
 import RepositoryError from 'src/common/errors/repository-error';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class UserRepository {
+export class MemberRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly repositoryError: RepositoryError,
@@ -13,6 +14,7 @@ export class UserRepository {
     const users = await this.prisma.user.findMany({
       where: {
         churchId,
+        authType: { not: AuthType.email },
       },
       include: {
         roles: {

@@ -1,17 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepository } from './user.repository';
+import { MemberRepository } from './member.repository';
 import { S3Service } from 'src/aws/s3/s3.service';
 
 @Injectable()
-export class UserService {
+export class MemberService {
   constructor(
-    private userRepository: UserRepository,
+    private memberRepository: MemberRepository,
     private readonly s3Service: S3Service,
   ) {}
 
   async findUsersByChurchId(churchId: number) {
     // Fetch users associated with the given church ID
-    const users = await this.userRepository.findUsersByChurchId(churchId);
+    const users = await this.memberRepository.findUsersByChurchId(churchId);
 
     // Map through the users and construct the desired response
     const userPromises = users.map(async (user) => {
