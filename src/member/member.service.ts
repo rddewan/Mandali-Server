@@ -29,17 +29,15 @@ export class MemberService {
       : member.roles;
 
     return {
-      user: {
-        id: member.id,
-        name: member.name,
-        email: member.email,
-        phoneNumber: member.phoneNumber,
-        photo,
-        role: roles.map((role) => ({
-          id: role.role.id,
-          name: role.role.name,
-        })),
-      },
+      id: member.id,
+      name: member.name,
+      email: member.email,
+      phoneNumber: member.phoneNumber,
+      photo,
+      role: roles.map((role) => ({
+        id: role.role.id,
+        name: role.role.name,
+      })),
     };
   }
 
@@ -65,17 +63,15 @@ export class MemberService {
         : member.roles;
 
       return {
-        user: {
-          id: member.id,
-          name: member.name,
-          email: member.email,
-          phoneNumber: member.phoneNumber,
-          photo,
-          role: roles.map((role) => ({
-            id: role.role.id,
-            name: role.role.name,
-          })),
-        },
+        id: member.id,
+        name: member.name,
+        email: member.email,
+        phoneNumber: member.phoneNumber,
+        photo,
+        role: roles.map((role) => ({
+          id: role.role.id,
+          name: role.role.name,
+        })),
       };
     });
 

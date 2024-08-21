@@ -33,21 +33,19 @@ export class MeService {
       : user.roles;
 
     return {
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        phoneNumber: user.phoneNumber,
-        photo,
-        role: roles.map((role) => ({
-          id: role.role.id,
-          name: role.role.name,
-        })),
-        church: {
-          id: user.church.id,
-          name: user.church.name,
-          timeZone: user.church.churchSetting.timeZone,
-        },
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phoneNumber,
+      photo,
+      role: roles.map((role) => ({
+        id: role.role.id,
+        name: role.role.name,
+      })),
+      church: {
+        id: user.church.id,
+        name: user.church.name,
+        timeZone: user.church.churchSetting.timeZone,
       },
     };
   }
