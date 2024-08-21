@@ -18,6 +18,7 @@ import {
   RefreshTokenDto,
 } from './dtos';
 import { ChurchSettingRepository } from 'src/church-setting/church-setting.repository';
+import { S3Service } from 'src/aws/s3/s3.service';
 
 @Injectable()
 export class AuthService {
@@ -28,6 +29,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly firebaseService: FirebaseService,
     private readonly churchSettingRepository: ChurchSettingRepository,
+    private readonly s3Service: S3Service,
   ) {}
 
   async signup(data: AuthDto) {
@@ -53,6 +55,8 @@ export class AuthService {
 
     const token = await this.createToken(user.id);
     const findUser = await this.authRepository.findUserById(user.id);
+    // Get the signed URL for the user's photo if it exists
+    const photo = await this.signedPhotoUrl(findUser.photo);
 
     return {
       token,
@@ -61,6 +65,7 @@ export class AuthService {
         name: findUser.name,
         email: findUser.email,
         phoneNumber: findUser.phoneNumber,
+        photo,
         role: findUser.roles.map((role) => role.role),
         church: {
           id: findUser.church.id,
@@ -95,6 +100,8 @@ export class AuthService {
 
       const newUser = await this.authRepository.createPhoneAuthUser(data);
       const findUser = await this.authRepository.findUserById(newUser.id);
+      // Get the signed URL for the user's photo if it exists
+      const photo = await this.signedPhotoUrl(newUser.photo);
 
       const token = await this.createToken(newUser.id);
 
@@ -105,6 +112,7 @@ export class AuthService {
           name: findUser.name,
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
+          photo,
           role: findUser.roles.map((role) => role.role),
           church: {
             id: findUser.church.id,
@@ -118,6 +126,8 @@ export class AuthService {
     } else {
       const token = await this.createToken(user.id);
       const findUser = await this.authRepository.findUserById(user.id);
+      // Get the signed URL for the user's photo if it exists
+      const photo = await this.signedPhotoUrl(user.photo);
 
       return {
         token,
@@ -126,6 +136,7 @@ export class AuthService {
           name: findUser.name,
           email: findUser.email,
           phoneNumber: findUser.phoneNumber,
+          photo,
           role: findUser.roles.map((role) => role.role),
           church: {
             id: findUser.church.id,
@@ -206,5 +217,10 @@ export class AuthService {
     };
 
     return token;
+  }
+
+  private async signedPhotoUrl(photo: string): Promise<string> {
+    const result = await this.s3Service.getSignedUrl(photo, 3600);
+    return result;
   }
 }

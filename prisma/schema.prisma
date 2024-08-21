@@ -22,11 +22,15 @@ enum AuthType {
 
 enum RoleType {
   superAdmin
-  user
   admin
+  user
+  member
   secretary
   treasurer
+  elder
   pastor
+  moderator
+  preacher
 }
 
 enum ServiceType {
