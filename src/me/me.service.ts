@@ -20,6 +20,7 @@ export class MeService {
     const photo = user.photo
       ? await this.s3Service.getSignedUrl(user.photo, 3600)
       : null;
+
     return {
       id: user.id,
       name: user.name,
