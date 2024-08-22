@@ -58,21 +58,30 @@ export class ChurchServiceController {
 
   @Post('api/v1/church-service')
   async create(@Body() data: ChurchServiceDto) {
-    const result = await this.churchServiceService.create(data);
+    try {
+      const result = await this.churchServiceService.create(data);
 
-    // send firebase notification
-    const formattedDate = format(result.date, 'dd MMM yyyy');
-    this.firebaseService.sendNotification(result.churchId.toString(), {
-      notification: {
-        title: 'New Church Service',
-        body: `Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
-      },
-    });
+      // send firebase notification
+      const formattedDate = format(result.date, 'dd MMM yyyy');
+      this.firebaseService.sendNotification(result.churchId.toString(), {
+        notification: {
+          title: 'New Church Service',
+          body: `Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
+        },
+      });
 
-    return {
-      status: 'success',
-      data: result,
-    };
+      return {
+        status: 'success',
+        data: result,
+      };
+    } catch (error) {
+      console.log(`controller error: ${error}`);
+
+      return {
+        status: 'success',
+        data: error.message,
+      };
+    }
   }
 
   @Patch('api/v1/church-service')
