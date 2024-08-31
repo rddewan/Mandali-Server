@@ -1,15 +1,17 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import * as admin from 'firebase-admin';
+import RepositoryError from 'src/common/errors/repository-error';
 
 @Injectable()
 export default class FirebaseRepository {
   private firebaseAdmin: admin.app.App;
 
-  constructor() {
+  constructor(private readonly repositoryError: RepositoryError) {
     this.initializeFirebaseAdmin();
   }
 
@@ -34,7 +36,7 @@ export default class FirebaseRepository {
         .auth()
         .verifyIdToken(token, checkingRevoked);
     } catch (error) {
-      this.throwError(error);
+      this.repositoryError.handleError(error);
     }
   }
 
@@ -42,52 +44,35 @@ export default class FirebaseRepository {
     try {
       return await this.firebaseAdmin.auth().getUser(uid);
     } catch (error) {
-      this.throwError(error);
+      this.repositoryError.handleError(error);
     }
   }
 
-  private throwError(error: any) {
-    // https://firebase.google.com/docs/auth/admin/errors
-    if (error instanceof Error) {
-      const err = error as Error & { code?: string | number };
+  async sendNotification(
+    topic: string,
+    payload: admin.messaging.MessagingPayload,
+  ) {
+    try {
+      const response = await this.firebaseAdmin
+        .messaging()
+        .sendToTopic(topic, payload);
 
-      if (
-        err.code &&
-        typeof err.code === 'string' &&
-        err.code.startsWith('auth/id-token-expired')
-      ) {
-        throw new UnauthorizedException(
-          'Firebase id token has aexpired. Please login again',
-        );
-      } else if (
-        err.code &&
-        typeof err.code === 'string' &&
-        err.code.startsWith('auth/id-token-revoked')
-      ) {
-        throw new UnauthorizedException(
-          'Firebase id token revoked. Please login again',
-        );
-      } else if (
-        err.code &&
-        typeof err.code === 'string' &&
-        err.code.startsWith('auth/user-disabled')
-      ) {
-        throw new UnauthorizedException(
-          'Firebase user is disabled. Please login again',
-        );
-      } else if (
-        err.code &&
-        typeof err.code === 'string' &&
-        err.code.startsWith('auth/user-not-found 	')
-      ) {
-        throw new UnauthorizedException(
-          'There is no existing user record corresponding to the provided identifier.',
-        );
-      } else {
-        throw new InternalServerErrorException(
-          'Something went wrong. Please try again',
-        );
-      }
+      console.log('Notification sent successfully:', response);
+    } catch (error) {
+      console.error('Error sending notification:', error);
+      return {
+        success: false,
+        message: 'Something went wrong. Failed to send notification.',
+      };
     }
   }
+
+  async deleteUser(uid: string) {
+    try {
+      await this.firebaseAdmin.auth().deleteUser(uid);
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
 }

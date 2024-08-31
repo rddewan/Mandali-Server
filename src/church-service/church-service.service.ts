@@ -9,12 +9,12 @@ export class ChurchServiceService {
     private readonly churchServiceRepository: ChurchServiceRepository,
   ) {}
 
-  async findAll(
+  async findChurchServicesByChurchId(
     page: number,
     limit: number,
     churchId: number,
-  ): Promise<ChurchService[]> {
-    return await this.churchServiceRepository.findAllChurchService(
+  ): Promise<{ data: ChurchService[]; total: number }> {
+    return await this.churchServiceRepository.findChurchServicesByChurchId(
       page,
       limit,
       churchId,
@@ -29,8 +29,8 @@ export class ChurchServiceService {
     return await this.churchServiceRepository.createChurchService(data);
   }
 
-  async update(id: number, data: Partial<ChurchServiceDto>) {
-    return await this.churchServiceRepository.updateChurchService(id, data);
+  async update(data: Partial<ChurchServiceDto>) {
+    return await this.churchServiceRepository.updateChurchService(data);
   }
 
   async delete(id: number): Promise<ChurchService> {

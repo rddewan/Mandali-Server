@@ -33,6 +33,17 @@ export class AuthRepository {
               },
             },
           },
+          church: {
+            select: {
+              id: true,
+              name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -55,6 +66,17 @@ export class AuthRepository {
                 select: {
                   id: true,
                   name: true,
+                },
+              },
+            },
+          },
+          church: {
+            select: {
+              id: true,
+              name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
                 },
               },
             },
@@ -89,6 +111,17 @@ export class AuthRepository {
               },
             },
           },
+          church: {
+            select: {
+              id: true,
+              name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -117,7 +150,6 @@ export class AuthRepository {
   async createUser(data: AuthDto): Promise<User> {
     try {
       const passwordHash = await this.hashPassword(data.password);
-      console.log(passwordHash);
 
       return await this.prisma.user.create({
         data: {
@@ -179,6 +211,7 @@ export class AuthRepository {
           authType: data.authType,
           phoneNumber: data.phoneNumber,
           churchId: data.churchId,
+          firebaseUID: data.firebaseUID,
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },
@@ -189,6 +222,7 @@ export class AuthRepository {
           phoneNumber: data.phoneNumber,
           authType: data.authType,
           churchId: data.churchId,
+          firebaseUID: data.firebaseUID,
           roles: {
             create: [{ role: { connect: { name: RoleType.user } } }],
           },

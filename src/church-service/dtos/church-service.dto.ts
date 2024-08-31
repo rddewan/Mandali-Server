@@ -11,6 +11,9 @@ import {
 } from 'class-validator';
 
 export class ChurchServiceDto {
+  @IsOptional()
+  id: number;
+
   @IsNotEmpty()
   @IsDateString()
   date: string;

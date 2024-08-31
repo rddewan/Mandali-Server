@@ -4,6 +4,7 @@ import {
   ConflictException,
   InternalServerErrorException,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common/exceptions';
 import { Prisma } from '@prisma/client';
 
@@ -48,6 +49,56 @@ export default class RepositoryError {
         throw new BadRequestException(
           'Invalid date format. Please provide a valid ISO-8601 date.',
         );
+      }
+      // https://firebase.google.com/docs/auth/admin/errors
+      if (error instanceof Error) {
+        const err = error as Error & { code?: string | number };
+
+        if (
+          err.code &&
+          typeof err.code === 'string' &&
+          err.code.startsWith('auth/id-token-expired')
+        ) {
+          throw new UnauthorizedException(
+            'Firebase id token has aexpired. Please login again',
+          );
+        } else if (
+          err.code &&
+          typeof err.code === 'string' &&
+          err.code.startsWith('auth/id-token-revoked')
+        ) {
+          throw new UnauthorizedException(
+            'Firebase id token revoked. Please login again',
+          );
+        } else if (
+          err.code &&
+          typeof err.code === 'string' &&
+          err.code.startsWith('auth/user-disabled')
+        ) {
+          throw new UnauthorizedException(
+            'Firebase user is disabled. Please login again',
+          );
+        } else if (
+          err.code &&
+          typeof err.code === 'string' &&
+          err.code.startsWith('auth/user-not-found 	')
+        ) {
+          throw new UnauthorizedException(
+            'There is no existing user record corresponding to the provided identifier.',
+          );
+        } else if (
+          err.code &&
+          typeof err.code === 'string' &&
+          err.code.startsWith('messaging/')
+        ) {
+          throw new BadRequestException(
+            'Something went wrong. Failed to send notification.',
+          );
+        } else {
+          throw new InternalServerErrorException(
+            'Something went wrong. Please try again',
+          );
+        }
       }
       // Handle unexpected errors
       throw error;

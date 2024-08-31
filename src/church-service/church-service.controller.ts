@@ -13,10 +13,15 @@ import {
 import { ChurchServiceService } from './church-service.service';
 import { ChurchServiceDto, ChurchServicePaginationDto } from './dtos';
 import { Request } from 'express';
+import FirebaseService from 'src/firebase/firebase.service';
+import { format } from 'date-fns';
 
 @Controller()
 export class ChurchServiceController {
-  constructor(private readonly churchServiceService: ChurchServiceService) {}
+  constructor(
+    private readonly churchServiceService: ChurchServiceService,
+    private readonly firebaseService: FirebaseService,
+  ) {}
 
   @Get('api/v1/church-service')
   async findAll(
@@ -24,7 +29,7 @@ export class ChurchServiceController {
     @Query() query: ChurchServicePaginationDto,
   ) {
     const user = req.user;
-    const result = await this.churchServiceService.findAll(
+    const result = await this.churchServiceService.findChurchServicesByChurchId(
       query.page,
       query.limit,
       user.churchId,
@@ -32,7 +37,12 @@ export class ChurchServiceController {
 
     return {
       status: 'success',
-      data: result,
+      data: result.data,
+      page: {
+        currentPage: query.page,
+        total: result.total,
+        totalPage: Math.ceil(result.total / query.limit),
+      },
     };
   }
 
@@ -49,18 +59,40 @@ export class ChurchServiceController {
   @Post('api/v1/church-service')
   async create(@Body() data: ChurchServiceDto) {
     const result = await this.churchServiceService.create(data);
+
+    // send firebase notification
+    const formattedDate = format(result.date, 'dd MMM yyyy');
+    this.firebaseService.sendNotification(result.churchId.toString(), {
+      notification: {
+        title: 'New Church Service',
+        body: `Church Service has been created for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
+      },
+      data: {
+        link: `/churchServiceDetail/${result.id}`,
+      },
+    });
+
     return {
       status: 'success',
       data: result,
     };
   }
 
-  @Patch('api/v1/church-service/:id')
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: Partial<ChurchServiceDto>,
-  ) {
-    const result = await this.churchServiceService.update(id, data);
+  @Patch('api/v1/church-service')
+  async update(@Body() data: Partial<ChurchServiceDto>) {
+    const result = await this.churchServiceService.update(data);
+
+    // send firebase notification
+    const formattedDate = format(result.date, 'dd MMM yyyy');
+    this.firebaseService.sendNotification(result.churchId.toString(), {
+      notification: {
+        title: 'Church Service Updated',
+        body: `Church Service has been updated for ${result.serviceType.toUpperCase()} on ${formattedDate}`,
+      },
+      data: {
+        link: `/churchServiceDetail/${result.id}`,
+      },
+    });
 
     return {
       status: 'success',

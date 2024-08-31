@@ -74,6 +74,7 @@ async function main() {
       churchId: church.id,
       roles: {
         create: [
+          { role: { connect: { name: RoleType.superAdmin } } },
           { role: { connect: { name: RoleType.admin } } },
           { role: { connect: { name: RoleType.user } } },
         ],

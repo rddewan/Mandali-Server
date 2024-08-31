@@ -13,4 +13,15 @@ export default class FirebaseService {
   async getUser(uid: string): Promise<admin.auth.UserRecord> {
     return this.firebaseRepository.getUser(uid);
   }
+
+  async deleteUser(uid: string) {
+    return this.firebaseRepository.deleteUser(uid);
+  }
+
+  async sendNotification(
+    topic: string,
+    payload: admin.messaging.MessagingPayload,
+  ) {
+    return this.firebaseRepository.sendNotification(topic, payload);
+  }
 }

@@ -31,11 +31,11 @@ export class ChurchServiceRepository {
     }
   }
 
-  async updateChurchService(id: number, data: Partial<ChurchServiceDto>) {
+  async updateChurchService(data: Partial<ChurchServiceDto>) {
     try {
       return await this.prisma.churchService.update({
         where: {
-          id,
+          id: data.id,
         },
         data,
       });
@@ -56,13 +56,13 @@ export class ChurchServiceRepository {
     }
   }
 
-  async findAllChurchService(
+  async findChurchServicesByChurchId(
     page: number,
     limit: number,
     churchId: number,
-  ): Promise<ChurchService[]> {
+  ): Promise<{ data: ChurchService[]; total: number }> {
     try {
-      return await this.prisma.churchService.findMany({
+      const data = await this.prisma.churchService.findMany({
         where: { churchId: churchId },
         skip: (page - 1) * limit,
         take: limit,
@@ -70,6 +70,12 @@ export class ChurchServiceRepository {
           id: 'desc',
         },
       });
+
+      const total = await this.prisma.churchService.count({
+        where: { churchId: churchId },
+      });
+
+      return { data, total };
     } catch (error) {
       this.repositoryError.handleError(error);
     }
