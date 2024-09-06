@@ -97,6 +97,17 @@ export class MeController {
     };
   }
 
+  @Get('api/v1/me/guilds')
+  async getMyGuilds(@Req() req: Request) {
+    const user = req.user;
+    const result = await this.meService.getUserGuilds(user.id);
+
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
   @Get('api/v1/me')
   async me(@Req() req: Request) {
     const user = req.user;

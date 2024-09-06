@@ -38,6 +38,10 @@ export class MemberService {
         id: role.role.id,
         name: role.role.name,
       })),
+      guild: member.guilds.map((data) => ({
+        id: data.guild.id,
+        name: data.guild.name,
+      })),
     };
   }
 
@@ -71,6 +75,10 @@ export class MemberService {
         role: roles.map((role) => ({
           id: role.role.id,
           name: role.role.name,
+        })),
+        guild: member.guilds.map((data) => ({
+          id: data.guild.id,
+          name: data.guild.name,
         })),
       };
     });

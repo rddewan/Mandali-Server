@@ -38,6 +38,13 @@ enum ServiceType {
   cottage
 }
 
+enum GuildType {
+  men
+  women
+  youth
+  children
+}
+
 model Church {
   id Int @id @default(autoincrement())
   name String @unique
@@ -77,6 +84,8 @@ model User {
   roles          UserRole[]
   // establish a one-to-many relationship with Service model
   services ChurchService[]
+  // establish a many-to-many relationship with the guild model
+  guilds        UserGuild[]
 
   // Foreign key to Church model
   churchId Int
@@ -164,4 +173,32 @@ model ChurchSetting {
   church Church @relation(fields: [churchId], references: [id], onDelete: Cascade)
 
   @@map("church_setting")
+}
+
+model Guild {
+  id Int @id @default(autoincrement())
+  name GuildType @unique
+
+  // establish a many-to-many relationship with the User model
+  user  UserGuild[]
+
+  createAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("guilds")
+
+}
+
+model UserGuild {
+  userId Int 
+  // foreign key - establish the relation with the User model
+  user  User @relation(fields: [userId], references: [id])
+
+  guildId Int
+  // foreign key - establish the relation with the guild model
+  guild Guild @relation(fields: [guildId], references: [id])
+
+  @@id([userId, guildId])
+
+  @@map("user_guild")
 }

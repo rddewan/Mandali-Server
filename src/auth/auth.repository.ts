@@ -33,6 +33,16 @@ export class AuthRepository {
               },
             },
           },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              }
+            },
+          },
           church: {
             select: {
               id: true,
@@ -68,6 +78,16 @@ export class AuthRepository {
                   name: true,
                 },
               },
+            },
+          },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              }
             },
           },
           church: {
@@ -109,6 +129,16 @@ export class AuthRepository {
                   name: true,
                 },
               },
+            },
+          },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              }
             },
           },
           church: {

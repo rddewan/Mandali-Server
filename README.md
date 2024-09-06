@@ -1,6 +1,15 @@
 # Mandali - Church 
 Church management SAAS
 
+# Projects
+
+| Project               | URL                                         |
+| --------------------- | ------------------------------------------- |
+| BE API (NestJS)       | https://github.com/rddewan/Mandali-Server   |
+| FE Admin (React)      | Comming Soon!                               |
+| FE Mobile (Flutter)   | https://github.com/rddewan/mandali-mobile   |
+
+
 ### Setup
 - Development DB Seed `npm run seed:dev`
 - Production DB Seed `npm run seed:prod`

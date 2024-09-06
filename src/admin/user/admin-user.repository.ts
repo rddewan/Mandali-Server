@@ -4,7 +4,7 @@ import RepositoryError from 'src/common/errors/repository-error';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class AdminRepository {
+export class AdminUserRepository {
   constructor(
     private readonly prisma: PrismaService,
     private readonly repositoryError: RepositoryError,
@@ -49,7 +49,49 @@ export class AdminRepository {
         },
       });
     } catch (error) {
-      log(error);
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async setUserGuild(userId: number, guildId: number) {
+    try {
+      // Check if the user already has this guild
+      const existingGuild = await this.prisma.userGuild.findUnique({
+        where: {
+          userId_guildId: {
+            userId,
+            guildId,
+          }
+        },
+      })
+
+      if (!existingGuild) {
+        // Add the guild if it does not exist
+        await this.prisma.userGuild.create({
+          data: {
+            userId,
+            guildId
+          }
+        })
+      }
+
+      return await this.findUserById(userId);
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async deleteUserGuild(userId: number, guildId: number) {
+    try {
+      await this.prisma.userGuild.delete({
+        where: {
+          userId_guildId: {
+            userId,
+            guildId
+          }
+        }
+      })
+    } catch (error) {
       this.repositoryError.handleError(error);
     }
   }
@@ -68,6 +110,16 @@ export class AdminRepository {
           roles: {
             select: {
               role: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          guilds: {
+            select: {
+              guild: {
                 select: {
                   id: true,
                   name: true,

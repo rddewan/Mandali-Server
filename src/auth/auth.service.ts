@@ -80,6 +80,10 @@ export class AuthService {
           id: role.role.id,
           name: role.role.name,
         })),
+        guild: findUser.guilds.map((guild) => ({
+          id: guild.guild.id,
+          name: guild.guild.name,
+        })),
         church: {
           id: findUser.church.id,
           name: findUser.church.name,
@@ -143,6 +147,10 @@ export class AuthService {
             id: role.role.id,
             name: role.role.name,
           })),
+          guild: findUser.guilds.map((guild) => ({
+            id: guild.guild.id,
+            name: guild.guild.name,
+          })),
           church: {
             id: findUser.church.id,
             name: findUser.church.name,
@@ -179,6 +187,10 @@ export class AuthService {
           role: roles.map((role) => ({
             id: role.role.id,
             name: role.role.name,
+          })),
+          guild: findUser.guilds.map((guild) => ({
+            id: guild.guild.id,
+            name: guild.guild.name,
           })),
           church: {
             id: findUser.church.id,

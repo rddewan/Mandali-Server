@@ -1,4 +1,4 @@
-import { PrismaClient, RoleType } from '@prisma/client';
+import { GuildType, PrismaClient, RoleType } from '@prisma/client';
 import * as dotenv from 'dotenv';
 import * as path from 'path';
 import * as bcrypt from 'bcrypt';
@@ -61,6 +61,22 @@ async function main() {
       create: { name: roleName },
     });
   }
+
+  console.log('Roles created');
+
+  // Create default roles
+  const guilds = Object.values(GuildType);
+  for (const guild of guilds) {
+    await prisma.guild.upsert({
+      where: { name: guild },
+      update: {
+        name: guild,
+      },
+      create: { name: guild },
+    });
+  }
+
+  console.log('Guilds created');
 
   // Create a default user with admin and user roles
   const user = await prisma.user.upsert({
