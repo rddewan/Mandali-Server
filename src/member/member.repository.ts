@@ -27,6 +27,16 @@ export class MemberRepository {
               },
             },
           },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          }
         },
       });
 
@@ -58,6 +68,16 @@ export class MemberRepository {
               },
             },
           },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          }
         },
       });
       return members;
