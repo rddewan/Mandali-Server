@@ -10,10 +10,12 @@ import { AuthenticationGuard } from './guards/authentication.guard';
 import { ChurchServiceModule } from './church-service/church-service.module';
 import { ChurchModule } from './church/church.module';
 import { MemberModule } from './member/member.module';
-import { AdminModule } from './admin/admin.module';
 import { S3Module } from './aws/s3/s3.module';
 import { ChurchSettingModule } from './church-setting/church-setting.module';
 import { MeModule } from './me/me.module';
+import { AdminGuildModel } from './admin/guild/admin-guild.module';
+import { AdminUserModule } from './admin/user/admin-user.module';
+import { GuildModel } from './guild/guild.module';
 
 @Module({
   imports: [
@@ -29,9 +31,11 @@ import { MeModule } from './me/me.module';
     ChurchModule,
     MemberModule,
     MeModule,
-    AdminModule,
+    AdminUserModule,
     S3Module,
     ChurchSettingModule,
+    AdminGuildModel,
+    GuildModel,
   ],
   controllers: [AppController],
   providers: [

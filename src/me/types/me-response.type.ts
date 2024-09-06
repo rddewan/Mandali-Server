@@ -1,8 +1,5 @@
-import { Token } from './token.type';
 
-export type LoginResponse = {
-  token: Token;
-  user: {
+export type MeResponse = {
     id: number;
     name: string;
     email: string;
@@ -11,5 +8,4 @@ export type LoginResponse = {
     role: object;
     guild: object;
     church: object;
-  };
 };

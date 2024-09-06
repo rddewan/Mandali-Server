@@ -34,6 +34,30 @@ export class MeRepository {
     }
   }
 
+  async getUserGuilds(userId: number) {
+    try {
+      const userWithGuilds = await this.prisma.user.findUnique({
+        where: { id: userId },
+        include: {
+          guilds: {
+            include: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      return userWithGuilds.guilds.map((userGuilds) =>userGuilds.guild);
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
   async me(id: number) {
     try {
       const user = await this.prisma.user.findUnique({
@@ -49,6 +73,16 @@ export class MeRepository {
                   name: true,
                 },
               },
+            },
+          },
+          guilds: {
+            select: {
+              guild: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              }
             },
           },
           church: {
