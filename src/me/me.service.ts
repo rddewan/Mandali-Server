@@ -3,6 +3,7 @@ import { MeRepository } from './me.repository';
 import { UpdateUserDto } from './dtos';
 import { S3Service } from 'src/aws/s3/s3.service';
 import { RoleType } from '@prisma/client';
+import { MeResponse } from './types';
 
 @Injectable()
 export class MeService {
@@ -15,7 +16,11 @@ export class MeService {
     return await this.meRepository.getUserRoles(userId);
   }
 
-  async me(id: number) {
+  async getUserGuilds(userId: number) {
+    return await this.meRepository.getUserGuilds(userId);
+  }
+
+  async me(id: number): Promise<MeResponse> {
     const user = await this.meRepository.me(id);
     // Get the signed URL for the user's photo if it exists
     const photo = user.photo
@@ -41,6 +46,10 @@ export class MeService {
       role: roles.map((role) => ({
         id: role.role.id,
         name: role.role.name,
+      })),
+      guild: user.guilds.map((data) => ({
+        id: data.guild.id,
+        name: data.guild.name,
       })),
       church: {
         id: user.church.id,
