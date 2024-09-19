@@ -20,7 +20,16 @@ services:
   #   networks:
   #     - network-dev
 
-      
+  cache:
+    env_file: ".env.development"
+    container_name: mandali_cache_dev
+    image: redis
+    #restart: always
+    ports:
+      - 6380:6379
+    networks:
+      - network-dev
+
   db-dev:
     env_file: ".env.development"
     container_name: mandali_db_dev

@@ -5,12 +5,15 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChurchDto } from './dtos';
 import { ChurchService } from './church.service';
 import { PublicRoute } from 'src/common/decorators';
+import { CacheInterceptor } from '@nestjs/cache-manager';
 
 @Controller()
+@UseInterceptors(CacheInterceptor)
 export class ChurchController {
   constructor(private readonly churchService: ChurchService) {}
 

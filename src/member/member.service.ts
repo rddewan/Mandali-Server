@@ -1,18 +1,28 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { MemberRepository } from './member.repository';
 import { S3Service } from 'src/aws/s3/s3.service';
 import { RoleType } from '@prisma/client';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class MemberService {
   constructor(
-    private memberRepository: MemberRepository,
+    private readonly memberRepository: MemberRepository,
     private readonly s3Service: S3Service,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
   ) {}
 
-  async findMemberById(id: number) {
+  async findMemberById(id: number, churchId: number) {
+    // get catch data
+    const cacheData = await this.cacheManager.get(`church-${churchId}-member-${id}`);
+    // if cache data exists, return it
+    if (cacheData) {
+      return cacheData;
+    }
     // Fetch users associated with the given church ID
-    const member = await this.memberRepository.findMembersById(id);
+    const member = await this.memberRepository.findMembersById(id);    
+
     // Get the signed URL for the user's photo if it exists
     const photo = member.photo
       ? await this.s3Service.getSignedUrl(member.photo, 3600)
@@ -28,7 +38,7 @@ export class MemberService {
       ? member.roles.filter((role) => role.role.name !== RoleType.user)
       : member.roles;
 
-    return {
+    const data = {
       id: member.id,
       name: member.name,
       email: member.email,
@@ -43,9 +53,21 @@ export class MemberService {
         name: data.guild.name,
       })),
     };
+
+    await this.cacheManager.set(`church-${churchId}-member-${id}`, data);
+
+    return data;
   }
 
   async findMembersByChurchId(churchId: number) {
+    // get catch data
+    const cacheData = await this.cacheManager.get(`church-${churchId}-members`);    
+    
+    // if cache data exists, return it
+    if (cacheData) {
+      return cacheData;
+    }
+
     // Fetch members associated with the given church ID
     const members = await this.memberRepository.findMembersByChurchId(churchId);
 
@@ -84,6 +106,10 @@ export class MemberService {
     });
 
     // Wait for all promises to resolve and return the final result
-    return Promise.all(membersPromises);
+    const data = await Promise.all(membersPromises);
+    // Set the result in the cache
+    await this.cacheManager.set(`church-${churchId}-members`, data);
+
+    return data;
   }
 }
