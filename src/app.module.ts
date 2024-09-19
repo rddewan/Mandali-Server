@@ -3,7 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { PrismaModule } from './prisma/prisma.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthenticationGuard } from './guards/authentication.guard';
@@ -16,6 +16,8 @@ import { MeModule } from './me/me.module';
 import { AdminGuildModel } from './admin/guild/admin-guild.module';
 import { AdminUserModule } from './admin/user/admin-user.module';
 import { GuildModel } from './guild/guild.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { CacheConfigService } from './common/cache/cache-config-service';
 
 @Module({
   imports: [
@@ -23,6 +25,10 @@ import { GuildModel } from './guild/guild.module';
       isGlobal: true,
       cache: true,
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useClass: CacheConfigService,
     }),
     JwtModule.register({ global: true }),
     AuthModule,

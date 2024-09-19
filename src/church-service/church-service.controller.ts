@@ -9,6 +9,7 @@ import {
   Post,
   Query,
   Req,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ChurchServiceService } from './church-service.service';
 import { ChurchServiceDto, ChurchServicePaginationDto } from './dtos';
@@ -47,8 +48,10 @@ export class ChurchServiceController {
   }
 
   @Get('api/v1/church-service/:id')
-  async findById(@Param('id', ParseIntPipe) id: number) {
-    const result = await this.churchServiceService.findById(id);
+  async findById(@Req() req: Request, @Param('id', ParseIntPipe) id: number) {
+    const user = req.user;
+
+    const result = await this.churchServiceService.findById(id, user.churchId);
 
     return {
       status: 'success',
@@ -57,8 +60,9 @@ export class ChurchServiceController {
   }
 
   @Post('api/v1/church-service')
-  async create(@Body() data: ChurchServiceDto) {
-    const result = await this.churchServiceService.create(data);
+  async create(@Req() req: Request, @Body() data: ChurchServiceDto) {
+    const user = req.user;
+    const result = await this.churchServiceService.create(data, user.churchId);
 
     // send firebase notification
     const formattedDate = format(result.date, 'dd MMM yyyy');

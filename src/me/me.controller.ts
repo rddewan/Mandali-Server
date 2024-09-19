@@ -89,7 +89,7 @@ export class MeController {
   @Get('api/v1/me/roles')
   async getMyRoles(@Req() req: Request) {
     const user = req.user;
-    const result = await this.meService.getUserRoles(user.id);
+    const result = await this.meService.getUserRoles(user.id, user.churchId);
 
     return {
       status: 'success',
@@ -100,7 +100,7 @@ export class MeController {
   @Get('api/v1/me/guilds')
   async getMyGuilds(@Req() req: Request) {
     const user = req.user;
-    const result = await this.meService.getUserGuilds(user.id);
+    const result = await this.meService.getUserGuilds(user.id, user.churchId);
 
     return {
       status: 'success',
@@ -111,7 +111,7 @@ export class MeController {
   @Get('api/v1/me')
   async me(@Req() req: Request) {
     const user = req.user;
-    const result = await this.meService.me(user.id);
+    const result = await this.meService.me(user.id, user.churchId);
 
     return {
       status: 'success',
@@ -123,7 +123,7 @@ export class MeController {
   async updateMe(@Req() req: Request, @Body() data: UpdateUserDto) {
     const user = req.user;
     await this.meService.updateMe(user.id, data);
-    const result = await this.meService.me(user.id);
+    const result = await this.meService.me(user.id, user.churchId);
 
     return {
       status: 'success',
