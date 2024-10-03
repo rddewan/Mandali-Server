@@ -1,13 +1,16 @@
 # Mandali - Church 
-Church management SAAS
+Church management SAAS - API
+
+# Course
+* [https://mobileacademy/course](https://mobileacademy.io/courses/)
 
 # Projects
 
-| Project               | URL                                         |
-| --------------------- | ------------------------------------------- |
-| BE API (NestJS)       | https://github.com/rddewan/Mandali-Server   |
-| FE Admin (React)      | Comming Soon!                               |
-| FE Mobile (Flutter)   | https://github.com/rddewan/mandali-mobile   |
+| Project               | URL                                            |
+| --------------------- | ---------------------------------------------- |
+| BE API (NestJS)       | https://github.com/rddewan/Mandali-Server      |
+| FE Admin (React)      | https://github.com/rddewan/Mandali-Admin-Panel |
+| FE Mobile (Flutter)   | https://github.com/rddewan/mandali-mobile      |
 
 
 ### Setup
