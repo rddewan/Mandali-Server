@@ -5,6 +5,10 @@ import { AdminUserRepository } from './admin-user.repository';
 export class AdminUserService {
   constructor(private readonly adminUserRepository: AdminUserRepository) {}
 
+  async findUserbyChurch(churchId: number) {
+    return await this.adminUserRepository.findUserByChurch(churchId);
+  }
+
   async setUserRole(userId: number, roleId: number) {
     return await this.adminUserRepository.setUserRole(userId, roleId);
   }
