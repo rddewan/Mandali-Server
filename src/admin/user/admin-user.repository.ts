@@ -96,6 +96,18 @@ export class AdminUserRepository {
     }
   }
 
+  async findUserByChurch(churchId: number) {
+    try {
+      return await this.prisma.user.findMany({
+        where: {
+          churchId,
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
   private async findUserById(userId: number) {
     try {
       return await this.prisma.user.findUnique({

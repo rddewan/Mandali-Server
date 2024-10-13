@@ -4,22 +4,25 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/common/dtos/user.dto';
 import { AuthDto, FirebaseLoginDto, LoginDto, RefreshTokenDto } from './dtos';
-import { CookieOptions, Response } from 'express-serve-static-core';
+import { CookieOptions, Response, Request } from 'express-serve-static-core';
 import { ConfigService } from '@nestjs/config';
 import { PublicRoute } from 'src/common/decorators';
 import { Token } from './types';
+
 
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   @PublicRoute()
   @Post('api/v1/auth/signup')
@@ -53,10 +56,23 @@ export class AuthController {
   }
 
   @PublicRoute()
-  @Post('api/v1/auth/refresh')
+  @Post('api/v1/auth/refresh-token')
   @HttpCode(HttpStatus.OK)
-  async refresh(@Body() data: RefreshTokenDto) {
-    const result = await this.authService.refresh(data);
+  async refresh(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() data: RefreshTokenDto,
+  ) {
+    // Extract refresh token from either cookies (web) or request body (mobile)
+    const refreshToken: string = req.cookies?.refresh_token || data.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token must be provided');
+    }
+
+    const result = await this.authService.refresh(refreshToken);
+
+    this.setHttpOnlyCookie(res, result);
 
     return {
       status: 'success',

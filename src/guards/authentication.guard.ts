@@ -34,7 +34,7 @@ export class AuthenticationGuard implements CanActivate {
       return true;
     } else {
       const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
+      const token = this.extractToken(request);
       if (!token) {
         throw new UnauthorizedException('Please login first');
       }
@@ -67,6 +67,17 @@ export class AuthenticationGuard implements CanActivate {
 
       return true;
     }
+  }
+
+  private extractToken(request: Request): string | undefined {
+    // Check Authorization header (for mobile clients)
+    const authHeaderToken = this.extractTokenFromHeader(request);
+    
+    // Check HTTP-only cookie (for web clients)
+    const cookieToken = request.cookies?.access_token; // Adjust the cookie name as needed
+
+    // Prioritize Authorization header, fallback to cookie if header is not present
+    return authHeaderToken || cookieToken;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {
