@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ChurchServiceRepository } from './church-service.repository';
 import { ChurchService } from '@prisma/client';
 import { ChurchServiceDto } from './dtos';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { CACHE_MANAGER,  } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { log } from 'console';
 
