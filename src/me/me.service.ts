@@ -1,23 +1,22 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MeRepository } from './me.repository';
 import { UpdateUserDto } from './dtos';
 import { S3Service } from 'src/aws/s3/s3.service';
 import { RoleType } from '@prisma/client';
 import { MeResponse } from './types';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisCacheService } from 'src/cache/redis-cache.service';
 
 @Injectable()
 export class MeService {
   constructor(
     private readonly meRepository: MeRepository,
     private readonly s3Service: S3Service,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly redisCacheService: RedisCacheService
   ) {}
 
   async getUserRoles(userId: number, churchId: number) {
     // get catch data
-    const cacheData = await this.cacheManager.get(`church-${churchId}-user-${userId}-roles`);
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${userId}-roles`);
     // if cache data exists, return it
     if (cacheData) {
       return cacheData;
@@ -26,7 +25,7 @@ export class MeService {
     const data = await this.meRepository.getUserRoles(userId);  
 
     // set the cache data
-    await this.cacheManager.set(`church-${churchId}-user-${userId}-roles`, data);
+    await this.redisCacheService.set(`church-${churchId}-user-${userId}-roles`, data);
 
     return data;
 
@@ -34,7 +33,7 @@ export class MeService {
 
   async getUserGuilds(userId: number, churchId: number) {
     // get catch data
-    const cacheData = await this.cacheManager.get(`church-${churchId}-user-${userId}-guilds`);
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${userId}-guilds`);
     // if cache data exists, return it
     if (cacheData) {
       return cacheData;
@@ -44,14 +43,14 @@ export class MeService {
     const data = await this.meRepository.getUserGuilds(userId);
 
     // set the cache data
-    await this.cacheManager.set(`church-${churchId}-user-${userId}-guilds`, data);
+    await this.redisCacheService.set(`church-${churchId}-user-${userId}-guilds`, data);
 
     return data;
   }
 
   async me(id: number, churchId: number): Promise<MeResponse> {
     // get catch data
-    const cacheData = await this.cacheManager.get(`church-${churchId}-user-${id}-me`);
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${id}-me`);
     // if cache data exists, return it
     if (cacheData) {
       return cacheData as MeResponse;
@@ -96,7 +95,7 @@ export class MeService {
     };
 
     // set the cache data
-    await this.cacheManager.set(`church-${churchId}-user-${id}-me`, data);
+    await this.redisCacheService.set(`church-${churchId}-user-${id}-me`, data);
 
     return data;
   }

@@ -2,48 +2,32 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Keyv from 'keyv';
 import KeyvRedis from '@keyv/redis';
-import { CacheModule, CacheModuleOptions } from '@nestjs/cache-manager';
-
+import { RedisCacheService } from './redis-cache.service';
 
 @Global()
-@Module({
-  imports: [
-    CacheModule.registerAsync<CacheModuleOptions>({
-      inject: [ConfigService],
+@Module({  
+  providers: [
+    {
+      provide: 'KEYV_INSTANCE',
       useFactory: async (configService: ConfigService) => {
         const redisUser = configService.get<string>('REDIS_USER', 'default');
         const redisPassword = configService.get<string>('REDIS_PASSWORD', '');
         const redisHost = configService.get<string>('REDIS_HOST', 'localhost');
         const redisPort = configService.get<string>('REDIS_PORT', '6379');
-        const defaultTTL = configService.get<number>('REDIS_CACHE_TTL', 300000);
+        const defaultTTL = parseInt(configService.get<string>('REDIS_CACHE_TTL', '300000'));
 
         const redisConnectionString = `redis://${redisUser}:${redisPassword}@${redisHost}:${redisPort}`;
-
-        const keyv = new Keyv({
+        
+        return new Keyv({
           store: new KeyvRedis(redisConnectionString),
-          namespace: 'mandali-cache',
           ttl: defaultTTL,
+          namespace: 'mandali-cache',
         });
-
-        return {
-          store: {
-            get: async (key: string) => {
-              const value = await keyv.get(key);
-              return value;
-            },
-            set: async (key: string, value: any, options?: { ttl?: number }) => {
-              const ttl = options?.ttl !== undefined ? options.ttl : defaultTTL;              
-              return keyv.set(key, value, ttl);
-            },
-            del: (key: string) => {
-              return keyv.delete(key);
-            },
-          },
-      
-    }
       },
-    }),
+      inject: [ConfigService],
+    },
+    RedisCacheService,
   ],
-  exports: [CacheModule],
+  exports: [ RedisCacheService, 'KEYV_INSTANCE'],
 })
 export class RedisCacheModule {}
