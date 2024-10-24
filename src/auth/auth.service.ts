@@ -236,6 +236,10 @@ export class AuthService {
     }
   }
 
+  async logout(refreshToken: string): Promise<void> {
+    await this.authRepository.deleteRefreshToken(refreshToken);
+  }
+
   async emailExists(email: string) {
     const user = await this.authRepository.findUserByEmail(email);
     return !!user;

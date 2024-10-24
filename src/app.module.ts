@@ -17,6 +17,9 @@ import { AdminGuildModel } from './admin/guild/admin-guild.module';
 import { AdminUserModule } from './admin/user/admin-user.module';
 import { GuildModel } from './guild/guild.module';
 import { RedisCacheModule} from './cache/redis-cache.module';
+import { AdminRoleModule } from './admin/role/admin-role.module';
+import { Auth } from 'firebase-admin/lib/auth/auth';
+
 
 @Module({
   imports: [
@@ -38,13 +41,14 @@ import { RedisCacheModule} from './cache/redis-cache.module';
     AdminGuildModel,
     GuildModel,
     RedisCacheModule,
+    AdminRoleModule,
   ],
   controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
-    },
+    },    
     AppService,
   ],
 })
