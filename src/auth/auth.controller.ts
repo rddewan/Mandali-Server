@@ -1,12 +1,14 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Req,
   Res,
   UnauthorizedException,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UserDto } from 'src/common/dtos/user.dto';
@@ -16,13 +18,12 @@ import { ConfigService } from '@nestjs/config';
 import { PublicRoute } from 'src/common/decorators';
 import { Token } from './types';
 
-
 @Controller()
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
-  ) { }
+  ) {}
 
   @PublicRoute()
   @Post('api/v1/auth/signup')
@@ -64,7 +65,8 @@ export class AuthController {
     @Body() data: RefreshTokenDto,
   ) {
     // Extract refresh token from either cookies (web) or request body (mobile)
-    const refreshToken: string = req.cookies?.refresh_token || data.refreshToken;
+    const refreshToken: string =
+      req.cookies?.refresh_token || data.refreshToken;
 
     if (!refreshToken) {
       throw new UnauthorizedException('Refresh token must be provided');
@@ -108,6 +110,36 @@ export class AuthController {
     };
   }
 
+  @PublicRoute()
+  @Get('/api/v1/auth/check')
+  getAuthState(@Req() req: Request) {
+    return req.authState;
+  }
+
+  @Post('api/v1/auth/logout')
+  @HttpCode(HttpStatus.OK)
+  async logout(
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+    @Body() data: RefreshTokenDto,
+  ) {
+    // Extract refresh token from either cookies (web) or request body (mobile)
+    const refreshToken: string =
+      req.cookies?.refresh_token || data.refreshToken;
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Refresh token must be provided');
+    }
+
+    await this.authService.logout(refreshToken);
+
+    this.clearHttpOnlyCookie(res);
+
+    return {
+      status: 'success',
+    };
+  }
+
   private setHttpOnlyCookie(res: Response, token: Token) {
     // one minute = 60 * 1000
     const oneMinute = 60 * 1000;
@@ -137,5 +169,11 @@ export class AuthController {
     res.cookie('access_token', token.access_token, accessTokenCookiesOption);
     // set cookies for refresh token
     res.cookie('refresh_token', token.refresh_token, refreshTokenCookiesOption);
+  }
+
+  private clearHttpOnlyCookie(res: Response) {
+    // Clear the JWT cookies
+    res.clearCookie('access_token', { httpOnly: true });
+    res.clearCookie('refresh_token', { httpOnly: true });
   }
 }

@@ -1,21 +1,20 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { MemberRepository } from './member.repository';
 import { S3Service } from 'src/aws/s3/s3.service';
 import { RoleType } from '@prisma/client';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { RedisCacheService } from 'src/cache/redis-cache.service';
 
 @Injectable()
 export class MemberService {
   constructor(
     private readonly memberRepository: MemberRepository,
-    private readonly s3Service: S3Service,
-    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache
+    private readonly s3Service: S3Service,    
+    private readonly redisCacheService: RedisCacheService
   ) {}
 
   async findMemberById(id: number, churchId: number) {
     // get catch data
-    const cacheData = await this.cacheManager.get(`church-${churchId}-member-${id}`);
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-member-${id}`);
     // if cache data exists, return it
     if (cacheData) {
       return cacheData;
@@ -54,14 +53,14 @@ export class MemberService {
       })),
     };
 
-    await this.cacheManager.set(`church-${churchId}-member-${id}`, data);
+    await this.redisCacheService.set(`church-${churchId}-member-${id}`, data);
 
     return data;
   }
 
   async findMembersByChurchId(churchId: number) {
     // get catch data
-    const cacheData = await this.cacheManager.get(`church-${churchId}-members`);    
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-members`);    
     
     // if cache data exists, return it
     if (cacheData) {
@@ -108,7 +107,7 @@ export class MemberService {
     // Wait for all promises to resolve and return the final result
     const data = await Promise.all(membersPromises);
     // Set the result in the cache
-    await this.cacheManager.set(`church-${churchId}-members`, data);
+    await this.redisCacheService.set(`church-${churchId}-members`, data);
 
     return data;
   }

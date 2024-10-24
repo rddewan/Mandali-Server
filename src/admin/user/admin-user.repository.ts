@@ -108,7 +108,7 @@ export class AdminUserRepository {
     }
   }
 
-  private async findUserById(userId: number) {
+  async findUserById(userId: number) {
     try {
       return await this.prisma.user.findUnique({
         where: {
@@ -119,6 +119,7 @@ export class AdminUserRepository {
           name: true,
           phoneNumber: true,
           email: true,
+          photo: true,
           roles: {
             select: {
               role: {
@@ -143,8 +144,25 @@ export class AdminUserRepository {
             select: {
               id: true,
               name: true,
+              churchSetting: {
+                select: {
+                  timeZone: true,
+                },
+              },
             },
           },
+        },
+      });
+    } catch (error) {
+      this.repositoryError.handleError(error);
+    }
+  }
+
+  async deleteUserById(userId: number) {
+    try {
+      await this.prisma.user.delete({
+        where: {
+          id: userId,
         },
       });
     } catch (error) {

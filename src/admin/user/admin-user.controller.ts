@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
@@ -33,6 +34,18 @@ export class AdminUserController {
     };
   }
 
+  @Get('api/v1/admin/users/:id')
+  @Roles(RoleType.admin, RoleType.superAdmin)
+  async getUserBuid(@Param('id', ParseIntPipe) id: number) {
+
+    const result = await this.adminUserService.findUserById(id);
+    
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
   @Post('api/v1/admin/users/set-user-role')
   @Roles(RoleType.admin, RoleType.superAdmin)
   async setUserRole(@Body() body: SetRoleDto) {
@@ -47,7 +60,7 @@ export class AdminUserController {
     };
   }
 
-  @Delete('api/v1/admin/user/delete-user-role')
+  @Delete('api/v1/admin/users/delete-user-role')
   @Roles(RoleType.admin, RoleType.superAdmin)
   async deleteUserRole(
     @Query('roleId', ParseIntPipe) roleId: number,
@@ -88,5 +101,16 @@ export class AdminUserController {
       status: 'success',
       data: null,
     }
+  }
+
+  @Delete('api/v1/admin/users/:id')
+  @Roles(RoleType.admin, RoleType.superAdmin)
+  async deleteUserById(@Param('id', ParseIntPipe) id: number) {
+    await this.adminUserService.deleteUserById(id);
+
+    return {
+      status: 'success',
+      data: null,
+    };
   }
 }
