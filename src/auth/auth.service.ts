@@ -20,6 +20,7 @@ import {
 import { ChurchSettingRepository } from 'src/church-setting/church-setting.repository';
 import { S3Service } from 'src/aws/s3/s3.service';
 
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -202,9 +203,9 @@ export class AuthService {
     }
   }
 
-  async refresh(data: RefreshTokenDto) {
+  async refresh(refreshToken: string) {
     try {
-      const refreshToken = data.refreshToken;
+      
       // verify refresh token
       const payload = await this.jwtService.verifyAsync<JwtPayload>(
         refreshToken,
@@ -233,6 +234,10 @@ export class AuthService {
 
       throw error;
     }
+  }
+
+  async logout(refreshToken: string): Promise<void> {
+    await this.authRepository.deleteRefreshToken(refreshToken);
   }
 
   async emailExists(email: string) {

@@ -2,9 +2,12 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
+  Param,
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { AdminUserService } from './admin-user.service';
@@ -12,11 +15,36 @@ import { SetGuildDto, SetRoleDto } from './dtos';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/common/decorators';
 import { RoleType } from '@prisma/client';
+import { Request } from 'express';
 
 @Controller()
 @UseGuards(RoleGuard)
 export class AdminUserController {
   constructor(private readonly adminUserService: AdminUserService) {}
+
+  @Get('api/v1/admin/users')
+  @Roles(RoleType.admin, RoleType.superAdmin)
+  async getUsers(@Req() req: Request) {
+    const user = req.user;
+    const result = await this.adminUserService.findUserbyChurch(user.churchId);
+    
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
+
+  @Get('api/v1/admin/users/:id')
+  @Roles(RoleType.admin, RoleType.superAdmin)
+  async getUserBuid(@Param('id', ParseIntPipe) id: number) {
+
+    const result = await this.adminUserService.findUserById(id);
+    
+    return {
+      status: 'success',
+      data: result,
+    };
+  }
 
   @Post('api/v1/admin/users/set-user-role')
   @Roles(RoleType.admin, RoleType.superAdmin)
@@ -32,7 +60,7 @@ export class AdminUserController {
     };
   }
 
-  @Delete('api/v1/admin/user/delete-user-role')
+  @Delete('api/v1/admin/users/delete-user-role')
   @Roles(RoleType.admin, RoleType.superAdmin)
   async deleteUserRole(
     @Query('roleId', ParseIntPipe) roleId: number,
@@ -73,5 +101,16 @@ export class AdminUserController {
       status: 'success',
       data: null,
     }
+  }
+
+  @Delete('api/v1/admin/users/:id')
+  @Roles(RoleType.admin, RoleType.superAdmin)
+  async deleteUserById(@Param('id', ParseIntPipe) id: number) {
+    await this.adminUserService.deleteUserById(id);
+
+    return {
+      status: 'success',
+      data: null,
+    };
   }
 }

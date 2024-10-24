@@ -22,51 +22,72 @@ export class AuthenticationGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    // check if it's a public route
+    const request = context.switchToHttp().getRequest();
+
+     // Check if the route is marked as public
     const isPublicRoute = this.reflector.getAllAndOverride<boolean>(
       IS_PUBLIC_KEY,
       [context.getHandler(), context.getClass()],
     );
 
-    // If public router return true
-    // else check if token exists and verify jwt token
-    if (isPublicRoute) {
-      return true;
-    } else {
-      const request = context.switchToHttp().getRequest();
-      const token = this.extractTokenFromHeader(request);
-      if (!token) {
-        throw new UnauthorizedException('Please login first');
+    const token = this.extractTokenFromRequest(request);
+
+    if (!token) {
+      // If no token is present, set authState to false
+      request.authState = { isAuthenticated: false };
+      
+      // Allow access to public routes without a token
+      if (isPublicRoute) {
+        return true;
+      } else {
+        throw new UnauthorizedException('Access token is required for this route');
       }
-
-      try {
-        // verify token
-        const payload = await this.jwtService.verifyAsync(token, {
-          secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
-        });
-
-        // check if user exists in DB
-        const user = await this.prismaService.user.findUnique({
-          where: {
-            id: payload.sub,
-          },
-        });
-
-        // if no user throw error
-        if (!user) {
-          throw new UnauthorizedException(
-            'User does not exist for this authorization token',
-          );
-        }
-
-        // if user exists - set user in request
-        request.user = user;
-      } catch (error) {
-        throw new UnauthorizedException('Authorization token is not valid');
-      }
-
-      return true;
     }
+
+    // If a token is present, validate it
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: this.configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+      });
+
+      // Check if the user exists in the database
+      const user = await this.prismaService.user.findUnique({
+        where: { id: payload.sub },
+      });
+
+      if (user) {
+        // Token is valid, user exists
+        request.user = user;
+        request.authState = { isAuthenticated: true };
+      } else {
+        // Token is valid, but user does not exist
+        request.authState = { isAuthenticated: false };
+        if (!isPublicRoute) {
+          throw new UnauthorizedException('User not found');
+        }
+      }
+    } catch (error) {
+      // Token verification failed
+      request.authState = { isAuthenticated: false };
+
+      if (!isPublicRoute) {
+        throw new UnauthorizedException('Invalid access token');
+      }
+    }
+
+    // Allow all requests (public or authenticated)
+    return true;
+  }
+
+  private extractTokenFromRequest(request: Request): string | undefined {
+    // Check Authorization header (for mobile clients)
+    const bearerToken = this.extractTokenFromHeader(request);
+    
+    // Check HTTP-only cookie (for web clients)
+    const cookieToken = request.cookies?.access_token;
+
+    // Prioritize Authorization header, fallback to cookie if header is not present
+    return bearerToken || cookieToken;
   }
 
   private extractTokenFromHeader(request: Request): string | undefined {

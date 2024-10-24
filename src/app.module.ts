@@ -16,6 +16,10 @@ import { MeModule } from './me/me.module';
 import { AdminGuildModel } from './admin/guild/admin-guild.module';
 import { AdminUserModule } from './admin/user/admin-user.module';
 import { GuildModel } from './guild/guild.module';
+import { RedisCacheModule} from './cache/redis-cache.module';
+import { AdminRoleModule } from './admin/role/admin-role.module';
+import { Auth } from 'firebase-admin/lib/auth/auth';
+
 
 @Module({
   imports: [
@@ -23,8 +27,8 @@ import { GuildModel } from './guild/guild.module';
       isGlobal: true,
       cache: true,
       envFilePath: [`.env.${process.env.NODE_ENV || 'development'}`],
-    }),
-    JwtModule.register({ global: true }),
+    }),    
+    JwtModule.register({ global: true }),    
     AuthModule,
     PrismaModule,
     ChurchServiceModule,
@@ -36,13 +40,15 @@ import { GuildModel } from './guild/guild.module';
     ChurchSettingModule,
     AdminGuildModel,
     GuildModel,
+    RedisCacheModule,
+    AdminRoleModule,
   ],
   controllers: [AppController],
   providers: [
     {
       provide: APP_GUARD,
       useClass: AuthenticationGuard,
-    },
+    },    
     AppService,
   ],
 })

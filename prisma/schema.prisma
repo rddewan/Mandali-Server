@@ -192,11 +192,11 @@ model Guild {
 model UserGuild {
   userId Int 
   // foreign key - establish the relation with the User model
-  user  User @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   guildId Int
   // foreign key - establish the relation with the guild model
-  guild Guild @relation(fields: [guildId], references: [id])
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
 
   @@id([userId, guildId])
 

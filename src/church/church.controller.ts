@@ -10,6 +10,7 @@ import { ChurchDto } from './dtos';
 import { ChurchService } from './church.service';
 import { PublicRoute } from 'src/common/decorators';
 
+
 @Controller()
 export class ChurchController {
   constructor(private readonly churchService: ChurchService) {}

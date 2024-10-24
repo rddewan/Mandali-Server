@@ -16,6 +16,22 @@ async function bootstrap() {
   // Use the compression middleware package to enable gzip compression.
   app.use(compression());
 
+  // Enable CORS
+  const allowedOrigins = [
+    process.env.CORS_ADMIN_URL,
+  ];
+
+  app.enableCors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  });
+
   const config = app.get(ConfigService);
   const PORT = config.get<number>('PORT') || 3000;
   await app.listen(PORT, '0.0.0.0');

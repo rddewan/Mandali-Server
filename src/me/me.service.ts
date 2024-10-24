@@ -4,23 +4,59 @@ import { UpdateUserDto } from './dtos';
 import { S3Service } from 'src/aws/s3/s3.service';
 import { RoleType } from '@prisma/client';
 import { MeResponse } from './types';
+import { RedisCacheService } from 'src/cache/redis-cache.service';
 
 @Injectable()
 export class MeService {
   constructor(
     private readonly meRepository: MeRepository,
     private readonly s3Service: S3Service,
+    private readonly redisCacheService: RedisCacheService
   ) {}
 
-  async getUserRoles(userId: number) {
-    return await this.meRepository.getUserRoles(userId);
+  async getUserRoles(userId: number, churchId: number) {
+    // get catch data
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${userId}-roles`);
+    // if cache data exists, return it
+    if (cacheData) {
+      return cacheData;
+    }
+    // Fetch users associated with the given userId
+    const data = await this.meRepository.getUserRoles(userId);  
+
+    // set the cache data
+    await this.redisCacheService.set(`church-${churchId}-user-${userId}-roles`, data);
+
+    return data;
+
   }
 
-  async getUserGuilds(userId: number) {
-    return await this.meRepository.getUserGuilds(userId);
+  async getUserGuilds(userId: number, churchId: number) {
+    // get catch data
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${userId}-guilds`);
+    // if cache data exists, return it
+    if (cacheData) {
+      return cacheData;
+    }
+
+    // // Fetch users associated with the given userId
+    const data = await this.meRepository.getUserGuilds(userId);
+
+    // set the cache data
+    await this.redisCacheService.set(`church-${churchId}-user-${userId}-guilds`, data);
+
+    return data;
   }
 
-  async me(id: number): Promise<MeResponse> {
+  async me(id: number, churchId: number): Promise<MeResponse> {
+    // get catch data
+    const cacheData = await this.redisCacheService.get(`church-${churchId}-user-${id}-me`);
+    // if cache data exists, return it
+    if (cacheData) {
+      return cacheData as MeResponse;
+    }
+
+    // // Fetch users associated with the given userId
     const user = await this.meRepository.me(id);
     // Get the signed URL for the user's photo if it exists
     const photo = user.photo
@@ -37,7 +73,7 @@ export class MeService {
       ? user.roles.filter((role) => role.role.name !== RoleType.user)
       : user.roles;
 
-    return {
+    const data =  {
       id: user.id,
       name: user.name,
       email: user.email,
@@ -57,6 +93,11 @@ export class MeService {
         timeZone: user.church.churchSetting.timeZone,
       },
     };
+
+    // set the cache data
+    await this.redisCacheService.set(`church-${churchId}-user-${id}-me`, data);
+
+    return data;
   }
 
   async deleteMe(userId: number) {
